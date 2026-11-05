@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">منصة الفارس التعليمية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- استدعاء مكتبات Firebase سحابياً -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkkPCD15NEuHY7Ixbi4N1q1ALtqkxcz-E",
+            authDomain: "alfaris-quiz.firebaseapp.com",
+            projectId: "alfaris-quiz",
+            storageBucket: "alfaris-quiz.firebasestorage.app",
+            messagingSenderId: "636287698476",
+            appId: "1:636287698476:web:3496ae9329e27a252ff389"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // جعل الأدوات متاحة عالمياً داخل الكود
+        window.FB_DB = db;
+        window.FB_COLLECTION = collection;
+        window.FB_GETDOCS = getDocs;
+        window.FB_SETDOC = setDoc;
+        window.FB_DOC = doc;
+        window.FB_DELETEDOC = deleteDoc;
+        window.FB_UPDATEDOC = updateDoc;
+
+        // تشغيل المنصة بعد تحميل سحابة جبارة
+        window.dispatchEvent(new Event('firebase-ready'));
+    </script>
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #06b6d4;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        body.dark-mode {
+            --primary: #818cf8;
+            --primary-hover: #6366f1;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; transition: background-color 0.25s, color 0.25s; }
+        body { background-color: var(--bg-color); color: var(--text-color); padding: 20px; min-height: 100vh; }
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .top-bar-left { display: flex; gap: 10px; align-items: center; }
+        .theme-toggle-btn { background: var(--card-bg); color: var(--text-color); border: 2px solid var(--border-color); padding: 8px 18px; border-radius: 50px; cursor: pointer; font-weight: 700; box-shadow: var(--shadow); }
+
+        header {
+            background: linear-gradient(135deg, #3b82f6, var(--primary), #9333ea);
+            color: white; padding: 35px 20px; border-radius: 28px; text-align: center; margin-bottom: 25px;
+            box-shadow: 0 20px 35px -10px rgba(79, 70, 229, 0.35);
+        }
+        .logo-badge {
+            width: 75px; height: 75px; background: rgba(255, 255, 255, 0.15); border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 12px auto;
+            backdrop-filter: blur(5px); overflow: hidden;
+        }
+        .logo-badge img { width: 100%; height: 100%; object-fit: cover; }
+        header h1 { font-size: 2.3rem; font-weight: 900; }
+        header p { opacity: 0.95; margin-top: 6px; font-weight: 600; font-size: 1.05rem; }
+
+        .card-box {
+            background: var(--card-bg); padding: 30px; border-radius: 24px; text-align: center;
+            box-shadow: var(--shadow); margin-top: 20px; border: 1px solid var(--border-color);
+        }
+
+        input[type="text"], input[type="password"], select, textarea {
+            width: 100%; padding: 12px 16px; margin: 6px 0; border: 2px solid var(--border-color);
+            border-radius: 14px; font-size: 1rem; text-align: right; background: var(--bg-color);
+            color: var(--text-color); outline: none; font-weight: 600;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15); }
+
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 20px; text-align: right; }
+        .nav-card {
+            background: var(--card-bg); border: 2px solid var(--border-color); padding: 22px; border-radius: 18px; cursor: pointer; box-shadow: var(--shadow); position: relative; overflow: hidden;
+        }
+        .nav-card:hover { transform: translateY(-4px); border-color: var(--primary); }
+        .nav-card h3 { color: var(--primary); font-size: 1.25rem; font-weight: 900; margin-bottom: 8px; }
+        .nav-card p { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; }
+
+        .btn {
+            background-color: var(--primary); color: white; padding: 12px 22px; border: none;
+            border-radius: 14px; cursor: pointer; font-weight: 700; text-decoration: none; display: inline-block; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+        .btn:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
+        .btn-danger { background-color: var(--danger); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+        .btn-success { background-color: var(--success); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+
+        .screen { display: none; }
+        .screen.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        #quiz-container { background: var(--card-bg); padding: 30px; border-radius: 24px; box-shadow: var(--shadow); border: 1px solid var(--border-color); }
+        .quiz-layout { display: grid; grid-template-columns: 260px 1fr; gap: 20px; align-items: start; }
+        @media(max-width: 768px) { .quiz-layout { grid-template-columns: 1fr; } }
+
+        .palette-sidebar { background: var(--bg-color); padding: 15px; border-radius: 18px; border: 1px solid var(--border-color); text-align: right; }
+        .palette-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 10px; max-height: 250px; overflow-y: auto; padding: 5px; }
+        .palette-btn { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 0; text-align: center; cursor: pointer; font-weight: 800; font-size: 0.85rem; color: var(--text-color); }
+        .palette-btn.current { background: var(--primary) !important; color: white !important; border-color: var(--primary) !important; }
+        .palette-btn.answered { background: var(--success) !important; color: white !important; border-color: var(--success) !important; }
+        .palette-btn.skipped { background: #94a3b8 !important; color: white !important; border-color: #94a3b8 !important; }
+
+        .question-box-wrapper { background: var(--bg-color); border: 2px solid var(--border-color); border-radius: 18px; padding: 20px; margin-bottom: 15px; text-align: right; transform-origin: top right; transition: transform 0.3s ease; }
+        .question-box-wrapper.zoomed-in { transform: scale(1.15); border-color: var(--primary); }
+        .question-img { width: 100%; max-height: 320px; object-fit: contain; display: block; margin: 12px auto; border-radius: 10px; }
+
+        .scratchpad-container { background: var(--card-bg); border: 2px dashed var(--secondary); border-radius: 16px; padding: 15px; margin-bottom: 20px; text-align: right; }
+        .scratchpad-canvas-wrap { position: relative; width: 100%; height: 220px; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; margin-top: 8px; }
+        #scratchpad-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+
+        .options-list { list-style: none; margin: 20px 0; }
+        .options-list li { background: var(--bg-color); padding: 14px 18px; border-radius: 14px; margin-bottom: 10px; cursor: pointer; text-align: right; font-size: 1.1rem; font-weight: 700; border: 2px solid var(--border-color); }
+        .options-list li:hover { border-color: var(--primary); }
+        .options-list li.selected { background: var(--primary) !important; color: white !important; border-color: var(--primary) !important; }
+        
+        .timer-box { font-size: 1.2rem; color: var(--danger); font-weight: 900; background: rgba(239, 68, 68, 0.1); padding: 6px 16px; border-radius: 50px; }
+        .subscription-info { background: rgba(79, 70, 229, 0.08); color: var(--primary); padding: 14px; border-radius: 16px; margin-bottom: 25px; font-weight: 800; text-align: center; border: 1px solid rgba(79, 70, 229, 0.2); }
+        .manage-box { background: var(--bg-color); padding: 15px; border-radius: 14px; margin-bottom: 12px; border: 1px solid var(--border-color); text-align: right; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: var(--card-bg); }
+        th, td { border: 1px solid var(--border-color); padding: 10px; text-align: center; font-size: 0.9rem; font-weight: 600; }
+        th { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- الشريط العلوي -->
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <button class="theme-toggle-btn" onclick="toggleDarkMode()" id="dark-mode-btn">🌙 الوضع الداكن</button>
+            </div>
+            <div id="auth-nav-box"></div>
+        </div>
+
+        <!-- 1. الشاشة الرئيسية -->
+        <div id="main-app" class="screen active">
+            <header>
+                <div class="logo-badge" id="header-logo-badge">⚔️</div>
+                <h1 id="platform-name-heading">منصة الفارس التعليمية</h1>
+                <p>في القدرات والتحصيلي</p>
+            </header>
+
+            <div class="subscription-info">✨ تصفح الأقسام والنماذج المتاحة بحرية واسترخاء:</div>
+            <div id="main-categories-grid" class="grid-cards"></div>
+
+            <div style="text-align: center; margin-top: 35px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <a id="main-whatsapp-btn" href="#" target="_blank" class="btn btn-success" style="flex: 1; min-width: 200px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    💬 التواصل مع المشرف عبر واتساب
+                </a>
+                <button class="btn btn-danger" onclick="switchScreen('admin-screen')" style="flex: 1; min-width: 200px;">🛠 لوحة تحكم المشرف</button>
+            </div>
+        </div>
+
+        <!-- 2. شاشة الأقسام الفرعية -->
+        <div id="branches-screen" class="screen card-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 id="branches-title" style="color: var(--primary);"></h2>
+                <button class="btn" onclick="switchScreen('main-app')" style="background: #64748b; padding: 6px 14px; font-size: 0.85rem;">← العودة للأقسام الرئيسية</button>
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 15px;">اختر القسم الفرعي المطلوب للاطلاع عليه:</p>
+            <div id="branches-grid" class="grid-cards"></div>
+        </div>
+
+        <!-- 3. شاشة النماذج -->
+        <div id="models-screen" class="screen card-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 id="models-title" style="color: var(--primary);"></h2>
+                <button class="btn" id="back-to-branches-btn" style="background: #64748b; padding: 6px 14px; font-size: 0.85rem;">← العودة للفرع</button>
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 15px;">اختر النموذج لبدء الاختبار التفاعلي:</p>
+            <div id="models-grid" class="grid-cards"></div>
+        </div>
+
+        <!-- 4. شاشة التسجيل للطالب -->
+        <div id="student-auth-screen" class="screen card-box" style="max-width: 500px; margin: 30px auto;">
+            <div class="logo-badge" id="auth-logo-badge">🎓</div>
+            <h2 style="color: var(--primary); margin-bottom: 10px;">سجل بياناتك في المنصة</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">أدخل اسمك ورقم جوالك للاشتراك وحفظ نتائجك</p>
+            
+            <input type="text" id="reg-student-name" placeholder="الاسم الثلاثي الكامل">
+            <input type="text" id="reg-student-phone" placeholder="رقم الجوال (مثال: 0507927427)">
+            <button class="btn btn-success" onclick="registerStudent()" style="width: 100%; margin-top: 15px; font-size: 1.1rem;">إتمام التسجيل 🚀</button>
+            <br><button class="btn" style="background: #64748b; margin-top: 12px; width: 100%;" onclick="switchScreen('main-app')">← العودة للرئيسية</button>
+        </div>
+
+        <!-- 5. شاشة بانتظار تفعيل المشرف مع رسالة واتساب جاهزة -->
+        <div id="activation-pending-screen" class="screen card-box" style="max-width: 500px; margin: 30px auto;">
+            <h2 style="color: var(--warning); margin-bottom: 10px;">🔒 حسابك بانتظار التفعيل</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px;">اضغط على الزر أدناه لإرسال رسالة تفعيل عبر الواتساب للمشرف ليمنحك كودك الخاص ومدة الاشتراك:</p>
+            
+            <a id="whatsapp-activation-link" href="#" target="_blank" class="btn btn-success" style="margin-bottom: 20px; font-size: 1rem; width: 100%; text-decoration:none; display:block;">📲 إرسال طلب التفعيل عبر واتساب للمشرف</a>
+            
+            <input type="text" id="student-passcode-input" placeholder="أدخل كود التفعيل الخاص بك هنا">
+            <button class="btn" onclick="verifyStudentPasscode()" style="width: 100%; margin-top: 10px;">تفعيل الحساب والانطلاق 🚀</button>
+            <br><button class="btn" style="background: #64748b; margin-top: 12px; width: 100%;" onclick="switchScreen('main-app')">← العودة للرئيسية</button>
+        </div>
+
+        <!-- 6. لوحة تحكم المشرف الشاملة -->
+        <div id="admin-screen" class="screen card-box">
+            <h2 style="color: var(--primary); margin-bottom: 20px;">🛠 لوحة تحكم المشرف الشاملة</h2>
+            <div id="admin-login-box">
+                <input type="password" id="admin-pass-input" placeholder="أدخل كلمة مرور المشرف السرية">
+                <button class="btn" onclick="verifyAdmin()" style="width: 100%; margin-top: 10px;">دخول المشرف 🔐</button>
+            </div>
+            
+            <div id="admin-dashboard-box" style="display: none; text-align: right;">
+                
+                <!-- أ) إعدادات الهوية -->
+                <div class="manage-box" style="border: 2px solid var(--secondary);">
+                    <h3 style="color: var(--secondary); margin-bottom: 8px;">⚙️ 1. إعدادات الهوية والشكل العام للمنصة</h3>
+                    
+                    <label style="display:block; margin-top:6px; font-weight:700;">اسم المنصة الخاص:</label>
+                    <input type="text" id="site-name-input" placeholder="مثال: منصة الفارس التعليمية">
+
+                    <label style="display:block; margin-top:6px; font-weight:700;">رقم الواتساب الخاص بك (لاستقبال طلبات التفعيل):</label>
+                    <input type="text" id="site-whatsapp-input" placeholder="مثال: 966507927427">
+
+                    <label style="display:block; margin-top:8px; font-weight:700;">شعار المنصة (اختر صورة من جهازك):</label>
+                    <input type="file" id="site-logo-input" accept="image/*" style="background: var(--card-bg); padding: 4px;">
+
+                    <label style="display:block; margin-top:8px; font-weight:700;">أو اختر لون المظهر الرئيسي للمنصة:</label>
+                    <select id="site-theme-color-select">
+                        <option value="#4f46e5">بنفسجي كلاسيكي (الافتراضي)</option>
+                        <option value="#2563eb">أزرق ملكي</option>
+                        <option value="#059669">أخضر زمردي</option>
+                        <option value="#dc2626">أحمر ياقوتي</option>
+                        <option value="#d97706">برتقالي ذهبي</option>
+                        <option value="#7c3aed">بنفسجي داكن</option>
+                    </select>
+
+                    <button class="btn" onclick="saveSiteSettings()" style="background: var(--secondary); width: 100%; margin-top: 12px;">حفظ إعدادات المنصة 💾</button>
+                </div>
+
+                <!-- ب) إدارة الطلاب سحابياً -->
+                <div class="manage-box" style="border-color: var(--primary);">
+                    <h3 style="color: var(--primary); margin-bottom: 8px;">👥 2. إدارة الطلاب سحابياً، الأكواد، ومدد الاشتراكات</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">البيانات مرتبطة بالسحابة وتتحدث فوراً مع الطلاب:</p>
+                    <div style="overflow-x: auto;">
+                        <table id="admin-students-table">
+                            <thead>
+                                <tr>
+                                    <th>اسم الطالب</th>
+                                    <th>رقم الجوال</th>
+                                    <th>الحالة، الكود والمدة</th>
+                                    <th>الدرجات والنتائج</th>
+                                    <th>إدارة الحساب والتفعيل</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ج) إدارة الأقسام الرئيسية -->
+                <div class="manage-box">
+                    <h3 style="color: var(--primary); margin-bottom: 6px;">📁 3. إدارة الأقسام الرئيسية</h3>
+                    <input type="text" id="new-main-cat-title" placeholder="عنوان القسم الرئيسي">
+                    <button class="btn" onclick="addNewMainCategory()" style="width: 100%; margin-top: 6px;">إضافة قسم رئيسي ➕</button>
+                    
+                    <div style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                        <label style="font-size:0.85rem; font-weight:750; color: var(--danger);">حذف قسم رئيسي:</label>
+                        <select id="delete-main-cat-select" style="margin-top:4px;"></select>
+                        <button class="btn btn-danger" onclick="deleteMainCategoryBtn()" style="width: 100%; margin-top: 6px; padding: 8px;">حذف القسم المحدد 🗑️</button>
+                    </div>
+                </div>
+
+                <!-- د) إدارة الفروع -->
+                <div class="manage-box">
+                    <h3 style="color: var(--secondary); margin-bottom: 6px;">📂 4. إدارة الفروع</h3>
+                    <label>اختر القسم الرئيسي:</label>
+                    <select id="parent-category-select"></select>
+                    <input type="text" id="new-branch-title" placeholder="عنوان الفرع الجديد" style="margin-top:4px;">
+                    <button class="btn" onclick="addNewBranch()" style="background: var(--secondary); width: 100%; margin-top: 6px;">إضافة الفرع ➕</button>
+
+                    <div style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                        <label style="font-size:0.85rem; font-weight:750; color: var(--danger);">حذف فرع:</label>
+                        <select id="delete-branch-select" style="margin-top:4px;"></select>
+                        <button class="btn btn-danger" onclick="deleteBranchBtn()" style="width: 100%; margin-top: 6px; padding: 8px;">حذف الفرع المحدد 🗑️</button>
+                    </div>
+                </div>
+
+                <!-- هـ) إدارة النماذج -->
+                <div class="manage-box">
+                    <h3 style="color: var(--warning); margin-bottom: 6px;">📝 5. إدارة النماذج (من 1 إلى 50)</h3>
+                    <label>اختر الفرع التابع له:</label>
+                    <select id="branch-select-for-model"></select>
+                    <input type="text" id="new-model-title" placeholder="عنوان النموذج (مثال: نموذج 1)" style="margin-top:4px;">
+                    
+                    <div style="display: flex; gap: 8px; margin-top: 6px;">
+                        <button class="btn" onclick="addNewModel()" style="background: var(--warning); flex: 1;">إضافة نموذج ➕</button>
+                        <button class="btn" onclick="autoGenerate50Models()" style="background: #8b5cf6; flex: 1;">توليد 50 نموذجاً ⚡</button>
+                    </div>
+
+                    <div style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                        <label style="font-size:0.85rem; font-weight:750; color: var(--danger);">حذف نموذج:</label>
+                        <select id="delete-model-select" style="margin-top:4px;"></select>
+                        <button class="btn btn-danger" onclick="deleteModelBtn()" style="width: 100%; margin-top: 6px; padding: 8px;">حذف النموذج المحدد 🗑️</button>
+                    </div>
+                </div>
+
+                <!-- و) إدارة الأسئلة -->
+                <div class="manage-box">
+                    <h3 style="color: var(--success); margin-bottom: 6px;">➕ 6. إضافة وحذف الأسئلة للنماذج</h3>
+                    <label>اختر النموذج:</label>
+                    <select id="question-target-model-select"></select>
+
+                    <label style="margin-top: 6px; display:block;">نص السؤال:</label>
+                    <textarea id="new-q-text" rows="2" placeholder="اكتب نص السؤال..."></textarea>
+
+                    <label style="margin-top: 6px; display:block;">صورة السؤال (اختياري):</label>
+                    <input type="file" id="new-q-img" accept="image/*" style="background: var(--card-bg); padding: 4px;">
+
+                    <label style="margin-top: 6px; display:block;">الخيارات الثابتة (أ، ب، ج، د):</label>
+                    <input type="text" id="opt-0" placeholder="الخيار (أ)">
+                    <input type="text" id="opt-1" placeholder="الخيار (ب)">
+                    <input type="text" id="opt-2" placeholder="الخيار (ج)">
+                    <input type="text" id="opt-3" placeholder="الخيار (د)">
+
+                    <label style="margin-top: 6px; display:block;">الإجابة الصحيحة:</label>
+                    <select id="correct-opt-idx">
+                        <option value="0">الخيار (أ)</option>
+                        <option value="1">الخيار (ب)</option>
+                        <option value="2">الخيار (ج)</option>
+                        <option value="3">الخيار (د)</option>
+                    </select>
+                    <button class="btn btn-success" onclick="addNewQuestionToDatabase()" style="width: 100%; margin-top: 10px;">حفظ السؤال في النموذج 💾</button>
+
+                    <div style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                        <label style="font-size:0.85rem; font-weight:750; color: var(--danger);">حذف أسئلة نموذج معين:</label>
+                        <select id="manage-questions-select" onchange="loadQuestionsForManagement()" style="margin-top:4px;"></select>
+                        <div id="questions-manage-list" style="margin-top: 6px; max-height: 150px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+
+            </div>
+            <br><button class="btn" style="background: #64748b; margin-top: 15px; width: 100%;" onclick="switchScreen('main-app')">← خروج من لوحة المشرف</button>
+        </div>
+
+        <!-- 7. شاشة الاختبار للطالب -->
+        <div id="quiz-container" class="screen">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 id="quiz-title" style="color: var(--primary); font-size: 1.2rem;"></h2>
+                <div class="timer-box" id="timer-display">⏱ 55:00</div>
+            </div>
+
+            <div class="quiz-layout">
+                <div class="palette-sidebar">
+                    <div style="font-weight: 800; font-size: 0.9rem; margin-bottom: 5px;">مؤشر الأسئلة:</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;" id="unanswered-count-text">غير محلول: 0</div>
+                    <div class="palette-container" id="question-palette"></div>
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div id="question-counter" style="font-weight: 800; color: var(--text-muted); font-size: 0.95rem;"></div>
+                        <button class="btn" onclick="toggleQuestionZoom()" id="zoom-toggle-btn" style="background: var(--secondary); padding: 5px 12px; font-size: 0.85rem;">🔍 تكبير السؤال</button>
+                    </div>
+
+                    <div class="question-box-wrapper" id="question-box-wrapper">
+                        <div id="question-text" style="font-size: 1.15rem; font-weight: 900; margin-bottom: 10px; text-align: right;"></div>
+                        <div id="image-wrapper" style="display:none;">
+                            <img id="question-image" class="question-img" src="">
+                        </div>
+                    </div>
+
+                    <div class="scratchpad-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 800; font-size: 0.9rem; color: var(--secondary);">📝 مساحة الحل والعمليات الحسابية:</span>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <select id="pen-color-select" onchange="changePenColor(this.value)" style="padding: 3px; font-size: 0.8rem; width: auto;">
+                                    <option value="#ef4444">أحمر</option>
+                                    <option value="#0f172a">أسود</option>
+                                    <option value="#3b82f6">أزرق</option>
+                                    <option value="#10b981">أخضر</option>
+                                </select>
+                                <button class="btn btn-danger" onclick="clearScratchpad()" style="padding: 4px 10px; font-size: 0.75rem;">🧹 مسح اللوحة</button>
+                            </div>
+                        </div>
+                        <div class="scratchpad-canvas-wrap" id="scratchpad-wrap">
+                            <canvas id="scratchpad-canvas"></canvas>
+                        </div>
+                    </div>
+
+                    <ul class="options-list" id="options-container"></ul>
+                    
+                    <div style="display: flex; justify-content: space-between; gap: 10px; margin-top: 20px;">
+                        <div>
+                            <button class="btn" onclick="prevQuestion()" style="background: #64748b; padding: 10px 16px;">← السابقة</button>
+                            <button class="btn" id="next-q-btn" onclick="nextQuestion()" style="padding: 10px 16px;">التالية →</button>
+                        </div>
+                        <button class="btn btn-danger" onclick="finishQuizEarly()" style="padding: 10px 16px;">إنهاء الاختبار ⏹</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        if (!localStorage.getItem('admin_pass')) {
+            localStorage.setItem('admin_pass', '2982023');
+        }
+
+        const defaultCategoriesData = [
+            { 
+                id: 'cat_quant', 
+                title: '📘 القسم الأول: القدرات العامة', 
+                branches: [ 
+                    { 
+                        id: 'br_zubda', 
+                        name: '🌟 قسم الزبدة',
+                        models: [
+                            { id: 'm_zubda_1', name: 'النموذج 1' },
+                            { id: 'm_zubda_2', name: 'النموذج 2' }
+                        ]
+                    }
+                ] 
+            },
+            {
+                id: 'cat_tahsili',
+                title: '📐 القسم الثاني: التحصيلي',
+                branches: [
+                    {
+                        id: 'br_tahsili_math',
+                        name: '📐 رياضيات التحصيلي',
+                        models: [
+                            { id: 'm_tahsili_1', name: 'نموذج الدوال' }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        let pendingQuizModelId = null;
+        let pendingQuizModelTitle = null;
+
+        // انتظار تحميل فايربيس ثم تشغيل المنصة
+        window.addEventListener('firebase-ready', function() {
+            applySiteCustomizations();
+            updateAuthNavBox();
+            renderMainCategories();
+        });
+
+        function getAdminWhatsapp() {
+            return localStorage.getItem('site_custom_whatsapp') || "966507927427";
+        }
+
+        function applySiteCustomizations() {
+            let name = localStorage.getItem('site_custom_name') || "منصة الفارس التعليمية";
+            let logo = localStorage.getItem('site_custom_logo') || "⚔️";
+            let color = localStorage.getItem('site_custom_color') || "#4f46e5";
+            let whatsapp = getAdminWhatsapp();
+
+            document.getElementById('platform-name-heading').innerText = name;
+            document.getElementById('page-title').innerText = name;
+            document.getElementById('site-name-input').value = name;
+            document.getElementById('site-whatsapp-input').value = whatsapp;
+
+            let badge = document.getElementById('header-logo-badge');
+            let authBadge = document.getElementById('auth-logo-badge');
+            if(logo.startsWith('data:image')) {
+                badge.innerHTML = `<img src="${logo}">`;
+                if(authBadge) authBadge.innerHTML = `<img src="${logo}">`;
+            } else {
+                badge.innerText = logo;
+                if(authBadge) authBadge.innerText = logo;
+            }
+
+            document.documentElement.style.setProperty('--primary', color);
+            document.getElementById('site-theme-color-select').value = color;
+
+            let waBtn = document.getElementById('main-whatsapp-btn');
+            if(waBtn) {
+                waBtn.href = `https://wa.me/${whatsapp}?text=` + encodeURIComponent("السلام عليكم، أرغب في تفعيل اشتراكي بمنصة الفارس التعليمية والاختبارات.");
+            }
+        }
+
+        function saveSiteSettings() {
+            let name = document.getElementById('site-name-input').value.trim();
+            let whatsapp = document.getElementById('site-whatsapp-input').value.trim();
+            let color = document.getElementById('site-theme-color-select').value;
+            let logoInput = document.getElementById('site-logo-input');
+
+            if(name) localStorage.setItem('site_custom_name', name);
+            if(whatsapp) localStorage.setItem('site_custom_whatsapp', whatsapp);
+            localStorage.setItem('site_custom_color', color);
+
+            if(logoInput.files && logoInput.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    localStorage.setItem('site_custom_logo', e.target.result);
+                    applySiteCustomizations();
+                    alert("تم حفظ إعدادات الهوية بنجاح!");
+                };
+                reader.readAsDataURL(logoInput.files[0]);
+            } else {
+                applySiteCustomizations();
+                alert("تم حفظ إعدادات الهوية بنجاح!");
+            }
+        }
+
+        function updateAuthNavBox() {
+            let session = localStorage.getItem('current_student_session');
+            let box = document.getElementById('auth-nav-box');
+            if(!box) return;
+
+            if (session) {
+                let student = JSON.parse(session);
+                box.innerHTML = `<span style="font-weight: 800; font-size: 0.9rem; margin-left: 10px;">أهلاً، ${student.name}</span>
+                                 <button class="btn btn-danger" onclick="logoutStudent()" style="padding: 6px 14px; font-size: 0.85rem;">تسجيل الخروج 🚪</button>`;
+            } else {
+                box.innerHTML = `<button class="btn btn-success" onclick="switchScreen('student-auth-screen')" style="padding: 6px 14px; font-size: 0.85rem;">تسجيل الدخول / الاشتراك 👤</button>`;
+            }
+        }
+
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            if(screenId === 'main-app') {
+                renderMainCategories();
+            }
+            if(screenId === 'admin-screen') {
+                populateAdminSelects();
+                loadAdminStudentsTable();
+            }
+            updateAuthNavBox();
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            let isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('dark_mode', isDark);
+            document.getElementById('dark-mode-btn').innerText = isDark ? '☀️ الوضع الفاتح' : '🌙 الوضع الداكن';
+        }
+
+        function getCategories() {
+            try {
+                let saved = localStorage.getItem('site_categories');
+                if(saved) return JSON.parse(saved);
+            } catch(e){}
+            return defaultCategoriesData;
+        }
+
+        function renderMainCategories() {
+            let cats = getCategories();
+            let container = document.getElementById('main-categories-grid');
+            if(!container) return;
+            let html = '';
+            cats.forEach(cat => {
+                html += `<div class="nav-card" onclick="openBranches('${cat.id}')">
+                    <h3>📁 ${cat.title}</h3>
+                    <p>اضغط لاستعراض الأقسام والفروع الداخلية ➔</p>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function openBranches(catId) {
+            let cats = getCategories();
+            let cat = cats.find(c => c.id === catId);
+            if(!cat) return;
+
+            document.getElementById('branches-title').innerText = cat.title;
+            let container = document.getElementById('branches-grid');
+            let html = '';
+            if(cat.branches && cat.branches.length > 0) {
+                cat.branches.forEach(branch => {
+                    html += `<div class="nav-card" onclick="openModels('${cat.id}', '${branch.id}')">
+                        <h3>📂 ${branch.name}</h3>
+                        <p>اضغط لاستعراض النماذج والأبواب ➔</p>
+                    </div>`;
+                });
+            } else {
+                html += `<p style="color:var(--text-muted);">لا توجد فروع مسجلة هنا بعد.</p>`;
+            }
+            container.innerHTML = html;
+            switchScreen('branches-screen');
+        }
+
+        function openModels(catId, branchId) {
+            let cats = getCategories();
+            let cat = cats.find(c => c.id === catId);
+            let branch = cat ? cat.branches.find(b => b.id === branchId) : null;
+            if(!branch) return;
+
+            document.getElementById('models-title').innerText = `${cat.title} ➔ ${branch.name}`;
+            document.getElementById('back-to-branches-btn').onclick = () => openBranches(catId);
+
+            let container = document.getElementById('models-grid');
+            let html = '';
+            if(branch.models && branch.models.length > 0) {
+                branch.models.forEach(model => {
+                    html += `<div class="nav-card" onclick="attemptStartQuiz('${model.id}', '${cat.title} ➔ ${branch.name} ➔ ${model.name}')" style="text-align: center; border-color: var(--primary);">
+                        <h3 style="color: var(--primary);">${model.name}</h3>
+                        <p>ابدأ الاختبار 🚀</p>
+                    </div>`;
+                });
+            } else {
+                html += `<p style="color:var(--text-muted);">لا توجد نماذج مسجلة هنا بعد.</p>`;
+            }
+            container.innerHTML = html;
+            switchScreen('models-screen');
+        }
+
+        function checkStudentSubscription(student) {
+            if(!student.active) return false;
+            if(!student.expiryDate) return true;
+            let now = new Date().getTime();
+            if(now > student.expiryDate) {
+                student.active = false;
+                return false;
+            }
+            return true;
+        }
+
+        async function attemptStartQuiz(modelId, fullTitle) {
+            pendingQuizModelId = modelId;
+            pendingQuizModelTitle = fullTitle;
+
+            let sessionStr = localStorage.getItem('current_student_session');
+            if(!sessionStr) {
+                switchScreen('student-auth-screen');
+                return;
+            }
+
+            let session = JSON.parse(sessionStr);
+            let students = await fetchStudentsFromCloud();
+            let student = students.find(s => s.phone === session.phone);
+
+            if(student && checkStudentSubscription(student)) {
+                localStorage.setItem('current_student_session', JSON.stringify(student));
+                startQuiz(modelId, fullTitle);
+            } else {
+                if(student) {
+                    student.active = false;
+                    await saveStudentToCloud(student);
+                }
+                setupPendingWhatsApp(student || session);
+                switchScreen('activation-pending-screen');
+            }
+        }
+
+        async function registerStudent() {
+            let name = document.getElementById('reg-student-name').value.trim();
+            let phone = document.getElementById('reg-student-phone').value.trim();
+            if(!name || !phone) return alert("أدخل الاسم الثلاثي ورقم الجوال!");
+
+            let students = await fetchStudentsFromCloud();
+            let existing = students.find(s => s.phone === phone);
+            
+            if (!existing) {
+                let uniqueCode = 'FARIS-' + Math.floor(1000 + Math.random() * 9000);
+                existing = { 
+                    name: name, 
+                    phone: phone, 
+                    active: false, 
+                    code: uniqueCode, 
+                    duration: 'شهر واحد', 
+                    durationDays: 30,
+                    expiryDate: null, 
+                    grades: [] 
+                };
+            }
+
+            await saveStudentToCloud(existing);
+            localStorage.setItem('current_student_session', JSON.stringify(existing));
+            updateAuthNavBox();
+
+            if(checkStudentSubscription(existing)) {
+                if(pendingQuizModelId) startQuiz(pendingQuizModelId, pendingQuizModelTitle);
+                else switchScreen('main-app');
+            } else {
+                setupPendingWhatsApp(existing);
+                switchScreen('activation-pending-screen');
+            }
+        }
+
+        function setupPendingWhatsApp(student) {
+            let waNum = getAdminWhatsapp();
+            let msg = `السلام عليكم يا استاذ، أنا الطالب: ${student.name}، ورقم جوالي: ${student.phone}، وأرغب في تفعيل اشتراكي بمنصة الفارس التعليمية والحصول على كود التفعيل.`;
+            document.getElementById('whatsapp-activation-link').href = `https://wa.me/${waNum}?text=` + encodeURIComponent(msg);
+        }
+
+        async function verifyStudentPasscode() {
+            let inputCode = document.getElementById('student-passcode-input').value.trim();
+            if(!inputCode) return alert("أدخل كود التفعيل!");
+
+            let session = JSON.parse(localStorage.getItem('current_student_session'));
+            let students = await fetchStudentsFromCloud();
+            let s = students.find(x => x.phone === session.phone);
+
+            if(s && inputCode.toUpperCase() === s.code.toUpperCase()) {
+                s.active = true;
+                let days = s.durationDays || 30;
+                s.expiryDate = new Date().getTime() + (days * 24 * 60 * 60 * 1000);
+
+                await saveStudentToCloud(s);
+                localStorage.setItem('current_student_session', JSON.stringify(s));
+                alert("تم تفعيل حسابك بنجاح!");
+                updateAuthNavBox();
+                if(pendingQuizModelId) startQuiz(pendingQuizModelId, pendingQuizModelTitle);
+                else switchScreen('main-app');
+            } else {
+                alert("كود التفعيل غير صحيح! تأكد من الكود المخصص لك من المشرف.");
+            }
+        }
+
+        function logoutStudent() {
+            localStorage.removeItem('current_student_session');
+            updateAuthNavBox();
+            switchScreen('main-app');
+        }
+
+        // --- دوال الاتصال السحابي بـ Firebase Firestore ---
+        async function fetchStudentsFromCloud() {
+            try {
+                let querySnapshot = await window.FB_GETDOCS(window.FB_COLLECTION(window.FB_DB, "students"));
+                let list = [];
+                querySnapshot.forEach((doc) => {
+                    list.push(doc.data());
+                });
+                return list;
+            } catch (e) {
+                console.error("خطأ في جلب الطلاب:", e);
+                return [];
+            }
+        }
+
+        async function saveStudentToCloud(student) {
+            try {
+                await window.FB_SETDOC(window.FB_DOC(window.FB_DB, "students", student.phone), student);
+            } catch (e) {
+                console.error("خطأ في حفظ الطالب:", e);
+            }
+        }
+
+        async function deleteStudentFromCloud(phone) {
+            try {
+                await window.FB_DELETEDOC(window.FB_DOC(window.FB_DB, "students", phone));
+            } catch (e) {
+                console.error("خطأ في حذف الطالب:", e);
+            }
+        }
+
+        function verifyAdmin() {
+            if (document.getElementById('admin-pass-input').value === localStorage.getItem('admin_pass')) {
+                document.getElementById('admin-login-box').style.display = 'none';
+                document.getElementById('admin-dashboard-box').style.display = 'block';
+                populateAdminSelects();
+                loadAdminStudentsTable();
+            } else { alert("كلمة المرور خاطئة!"); }
+        }
+
+        async function loadAdminStudentsTable() {
+            let students = await fetchStudentsFromCloud();
+            let tbody = document.getElementById('students-table-body');
+            if(!tbody) return;
+            if(students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="color:var(--text-muted);">لا توجد طلاب مسجلين حتى الآن.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            students.forEach((s, sIdx) => {
+                if(!s.code) s.code = 'FARIS-' + Math.floor(1000 + Math.random() * 9000);
+                if(!s.duration) s.duration = 'شهر واحد';
+
+                let isStillActive = checkStudentSubscription(s);
+                let statusBadge = isStillActive ? 
+                    `<span style="color:var(--success); font-weight:800;">نشط ✅</span><br><small>الكود: <strong>${s.code}</strong></small><br><small style="color:var(--primary);">المدة: ${s.duration}</small>` : 
+                    `<span style="color:var(--warning); font-weight:800;">معلق أو منتهي ⏳</span><br><small>الكود: <strong>${s.code}</strong></small>`;
+                
+                let gradesHtml = '';
+                if(s.grades && s.grades.length > 0) {
+                    s.grades.forEach((g, gIdx) => {
+                        gradesHtml += `<div style="font-size:0.8rem; background:var(--bg-color); padding:4px; margin:2px 0; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+                            <span>${g.modelName}: <strong>${g.score}/${g.total}</strong></span>
+                            <button class="btn btn-danger" style="padding:1px 6px; font-size:0.65rem;" onclick="deleteStudentGrade('${s.phone}', ${gIdx})">حذف 🗑️</button>
+                        </div>`;
+                    });
+                } else {
+                    gradesHtml = '<span style="color:var(--text-muted); font-size:0.8rem;">لا توجد اختبارات مسجلة</span>';
+                }
+
+                html += `<tr>
+                    <td>${s.name}</td>
+                    <td>${s.phone}</td>
+                    <td>
+                        ${statusBadge}
+                        <div style="margin-top:6px;">
+                            <select onchange="changeStudentDuration('${s.phone}', this.value)" style="padding:3px; font-size:0.75rem;">
+                                <option value="شهر واحد" ${s.duration==='شهر واحد'?'selected':''}>شهر واحد</option>
+                                <option value="3 أشهر" ${s.duration==='3 أشهر'?'selected':''}>3 أشهر</option>
+                                <option value="سنة كاملة" ${s.duration==='سنة كاملة'?'selected':''}>سنة كاملة</option>
+                                <option value="مفتوح" ${s.duration==='مفتوح'?'selected':''}>مفتوح</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td style="max-width:220px; text-align:right;">${gradesHtml}</td>
+                    <td>
+                        <button class="btn ${s.active?'btn-danger':'btn-success'}" style="padding:4px 10px; font-size:0.8rem; width:100%; margin-bottom:4px;" onclick="toggleStudentActivation('${s.phone}')">${s.active?'إلغاء التفعيل':'تفعيل يدوي'}</button>
+                        <button class="btn btn-danger" style="padding:4px 10px; font-size:0.8rem; width:100%;" onclick="deleteStudent('${s.phone}')">حذف الطالب 🗑️</button>
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        async function changeStudentDuration(phone, durationStr) {
+            let students = await fetchStudentsFromCloud();
+            let s = students.find(x => x.phone === phone);
+            if(!s) return;
+
+            s.duration = durationStr;
+            let days = 30;
+            if(durationStr === '3 أشهر') days = 90;
+            if(durationStr === 'سنة كاملة') days = 365;
+            if(durationStr === 'مفتوح') days = 3650;
+
+            s.durationDays = days;
+            if(s.active) {
+                s.expiryDate = new Date().getTime() + (days * 24 * 60 * 60 * 1000);
+            }
+            await saveStudentToCloud(s);
+            loadAdminStudentsTable();
+            alert("تم تحديث مدة اشتراك الطالب بنجاح!");
+        }
+
+        async function toggleStudentActivation(phone) {
+            let students = await fetchStudentsFromCloud();
+            let s = students.find(x => x.phone === phone);
+            if(!s) return;
+
+            s.active = !s.active;
+            if(s.active) {
+                let days = s.durationDays || 30;
+                s.expiryDate = new Date().getTime() + (days * 24 * 60 * 60 * 1000);
+            } else {
+                s.expiryDate = null;
+            }
+            await saveStudentToCloud(s);
+            loadAdminStudentsTable();
+        }
+
+        async function deleteStudent(phone) {
+            if(!confirm("هل أنت متأكد من حذف هذا الطالب نهائياً؟")) return;
+            await deleteStudentFromCloud(phone);
+            loadAdminStudentsTable();
+        }
+
+        async function deleteStudentGrade(phone, gIdx) {
+            if(!confirm("حذف درجة هذا الاختبار للطالب؟")) return;
+            let students = await fetchStudentsFromCloud();
+            let s = students.find(x => x.phone === phone);
+            if(s && s.grades) {
+                s.grades.splice(gIdx, 1);
+                await saveStudentToCloud(s);
+                loadAdminStudentsTable();
+            }
+        }
+
+        function addNewMainCategory() {
+            let title = document.getElementById('new-main-cat-title').value.trim();
+            if(!title) return alert("أدخل عنوان القسم الرئيسي!");
+            let cats = getCategories();
+            cats.push({ id: 'cat_' + Date.now(), title: title, branches: [] });
+            localStorage.setItem('site_categories', JSON.stringify(cats));
+            alert("تم إضافة القسم الرئيسي بنجاح!");
+            document.getElementById('new-main-cat-title').value = '';
+            populateAdminSelects(); renderMainCategories();
+        }
+
+        function deleteMainCategoryBtn() {
+            let catId = document.getElementById('delete-main-cat-select').value;
+            if(!catId) return alert("اختر القسم المراد حذفه!");
+            if(!confirm("حذف هذا القسم الرئيسي بالكامل؟")) return;
+            let cats = getCategories();
+            cats = cats.filter(c => c.id !== catId);
+            localStorage.setItem('site_categories', JSON.stringify(cats));
+            alert("تم حذف القسم بنجاح!");
+            populateAdminSelects(); renderMainCategories();
+        }
+
+        function addNewBranch() {
+            let parentId = document.getElementById('parent-category-select').value;
+            let title = document.getElementById('new-branch-title').value.trim();
+            if(!title) return alert("أدخل عنوان الفرع!");
+            let cats = getCategories();
+            let mainCat = cats.find(c => c.id === parentId);
+            if(!mainCat) return alert("القسم غير موجود!");
+            if(!mainCat.branches) mainCat.branches = [];
+            mainCat.branches.push({ id: 'br_' + Date.now(), name: title, models: [] });
+            localStorage.setItem('site_categories', JSON.stringify(cats));
+            alert("تم إضافة الفرع بنجاح!");
+            document.getElementById('new-branch-title').value = '';
+            populateAdminSelects(); renderMainCategories();
+        }
+
+        function deleteBranchBtn() {
+            let branchId = document.getElementById('delete-branch-select').value;
+            if(!branchId) return alert("اختر الفرع المراد حذفه!");
+            if(!confirm("حذف هذا الفرع؟")) return;
+            let cats = getCategories();
+            cats.forEach(c => { if(c.branches) c.branches = c.branches.filter(b => b.id !== branchId); });
+            localStorage.setItem('site_categories', JSON.stringify(cats));
+            alert("تم حذف الفرع بنجاح!");
+            populateAdminSelects(); renderMainCategories();
+        }
+
+        function addNewModel() {
+            let branchId = document.getElementById('branch-select-for-model').value;
+            let title = document.getElementById('new-model-title').value.trim();
+            if(!title) return alert("أدخل عنوان النموذج!");
+            let cats = getCategories();
+            let targetBranch = null;
+            cats.forEach(c => { if(c.branches) { let b = c.branches.find(x => x.id === branchId); if(b) targetBranch = b; } });
+            if(!targetBranch) return alert("الفرع غير موجود!");
+            if(!targetBranch.models) targetBranch.models = [];
+            targetBranch.models.push({ id: 'm_' + Date.now(), name: title });
+            localStorage.setItem('site_categories', JSON.stringify(cats));
+            alert("تم إضافة النموذج بنجاح!");
+            document.getElementById('new-model-title').value = '';
+            populateAdminSelects(); renderMainCategories();
+        }
+
+        function autoGenerate50Models() {
+            let branchId = document.getElementById('branch-select-for-model').value;
+            if(!branchId) return alert("اختر الفرع أولاً!");
+            if(!confirm("إنشاء 50 نموذجاً تلقائياً في هذا الفرع؟")) return;
+            let cats = getCategories();
+            let targetBranch = null;
+            cats.forEach(c => { if(c.branches) { let b = c.branches.find(x => x.id === branchId); if(b) targetBranch = b; } });
+            if(!targetBranch) return alert("الفرع غير موجود!");
+            if(!targetBranch.models) targetBranch.models = [];
+            for(let i = 1; i <= 50; i++) {
+                targetBranch.models.push({ id: `m_auto_${branchId}_${i}_${Date.now()}`, name: `النموذج ${i}` });
+            }
+            localStorage.setItem('site_categories', JSON.stringify(cats));
+            alert("تم إنشاء 50 نموذجاً بنجاح!");
+            populateAdminSelects(); renderMainCategories();
+        }
+
+        function deleteModelBtn() {
+            let modelId = document.getElementById('delete-model-select').value;
+            if(!modelId) return alert("اختر النموذج المراد حذفه!");
+            if(!confirm("حذف هذا النموذج؟")) return;
+            let cats = getCategories();
+            cats.forEach(c => {
+                if(c.branches) {
+                    c.branches.forEach(b => {
+                        if(b.models) b.models = b.models.filter(m => m.id !== modelId);
+                    });
+                }
+            });
+            localStorage.setItem('site_categories', JSON.stringify(cats));
+            alert("تم حذف النموذج بنجاح!");
+            populateAdminSelects(); renderMainCategories();
+        }
+
+        function getQuizDatabase() {
+            try {
+                let savedDB = localStorage.getItem('site_quiz_database');
+                if (savedDB) return JSON.parse(savedDB);
+            } catch(e){}
+            return {
+                "m_zubda_1": [
+                    { q: "سؤال تجريبي: قارن بين القيمتين 5 + 5 × 2 و 20", img: "", opts: ["أ) القيمة الأولى أكبر", "ب) القيمة الثانية أكبر", "ج) القيمتان متساويتان", "د) المعطيات غير كافية"], correct: 2 }
+                ]
+            };
+        }
+
+        function populateAdminSelects() {
+            let mainDelSelect = document.getElementById('delete-main-cat-select');
+            let parentSelect = document.getElementById('parent-category-select');
+            let branchDelSelect = document.getElementById('delete-branch-select');
+            let branchSelect = document.getElementById('branch-select-for-model');
+            let modelDelSelect = document.getElementById('delete-model-select');
+            let modelSelect = document.getElementById('question-target-model-select');
+            let manageSelect = document.getElementById('manage-questions-select');
+
+            let cats = getCategories();
+            let mainOpts = '', parentOpts = '', branchOpts = '', modelOpts = '';
+
+            cats.forEach(cat => {
+                mainOpts += `<option value="${cat.id}">${cat.title}</option>`;
+                parentOpts += `<option value="${cat.id}">${cat.title}</option>`;
+                if(cat.branches) {
+                    cat.branches.forEach(b => {
+                        branchOpts += `<option value="${b.id}">${cat.title} ➔ ${b.name}</option>`;
+                        if(b.models) {
+                            b.models.forEach(m => {
+                                modelOpts += `<option value="${m.id}">${cat.title} ➔ ${b.name} ➔ ${m.name}</option>`;
+                            });
+                        }
+                    });
+                }
+            });
+
+            if(mainDelSelect) mainDelSelect.innerHTML = mainOpts;
+            if(parentSelect) parentSelect.innerHTML = parentOpts;
+            if(branchDelSelect) branchDelSelect.innerHTML = branchOpts;
+            if(branchSelect) branchSelect.innerHTML = branchOpts;
+            if(modelDelSelect) modelDelSelect.innerHTML = modelOpts;
+            if(modelSelect) modelSelect.innerHTML = modelOpts;
+            if(manageSelect) { manageSelect.innerHTML = modelOpts; loadQuestionsForManagement(); }
+        }
+
+        function addNewQuestionToDatabase() {
+            let targetKey = document.getElementById('question-target-model-select').value;
+            if(!targetKey) return alert("اختر النموذج أولاً!");
+            let qText = document.getElementById('new-q-text').value.trim();
+            let opt0 = document.getElementById('opt-0').value.trim();
+            let opt1 = document.getElementById('opt-1').value.trim();
+            let opt2 = document.getElementById('opt-2').value.trim();
+            let opt3 = document.getElementById('opt-3').value.trim();
+            let correctIdx = parseInt(document.getElementById('correct-opt-idx').value);
+            let imgInput = document.getElementById('new-q-img');
+
+            if (!qText && imgInput.files.length === 0) return alert("اكتب السؤال أو ارفع صورة!");
+
+            let db = getQuizDatabase();
+            if(!db[targetKey]) db[targetKey] = [];
+
+            let saveQ = (imgData) => {
+                db[targetKey].push({ q: qText || "سؤال مصور", img: imgData || "", opts: [opt0||"أ", opt1||"ب", opt2||"ج", opt3||"د"], correct: correctIdx });
+                localStorage.setItem('site_quiz_database', JSON.stringify(db));
+                alert("تم حفظ السؤال بنجاح!");
+                document.getElementById('new-q-text').value = '';
+                document.getElementById('opt-0').value = '';
+                document.getElementById('opt-1').value = '';
+                document.getElementById('opt-2').value = '';
+                document.getElementById('opt-3').value = '';
+                document.getElementById('new-q-img').value = '';
+                loadQuestionsForManagement();
+            };
+
+            if (imgInput.files && imgInput.files[0]) {
+                let reader = new FileReader();
+                reader.onload = (e) => saveQ(e.target.result);
+                reader.readAsDataURL(imgInput.files[0]);
+            } else { saveQ(""); }
+        }
+
+        function loadQuestionsForManagement() {
+            let targetKey = document.getElementById('manage-questions-select').value;
+            let db = getQuizDatabase();
+            let container = document.getElementById('questions-manage-list');
+            if(!container) return;
+            let questions = db[targetKey] || [];
+            if(!questions.length) { container.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">لا توجد أسئلة مضافة.</p>'; return; }
+            
+            let html = '';
+            questions.forEach((q, idx) => {
+                html += `<div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-bg); padding:6px 10px; border-radius:8px; margin-bottom:5px; border:1px solid var(--border-color);">
+                    <span style="font-size:0.85rem;">سؤال ${idx+1}: ${q.q.substring(0,22)}...</span>
+                    <button class="btn btn-danger" style="padding:2px 8px; font-size:0.7rem;" onclick="deleteQuestion('${targetKey}', ${idx})">حذف 🗑️</button>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function deleteQuestion(targetKey, qIndex) {
+            if(!confirm("حذف هذا السؤال؟")) return;
+            let db = getQuizDatabase();
+            if(db[targetKey]) {
+                db[targetKey].splice(qIndex, 1);
+                localStorage.setItem('site_quiz_database', JSON.stringify(db));
+                alert("تم حذف السؤال!");
+                loadQuestionsForManagement();
+            }
+        }
+
+        let activeQuestions = [], currentQ = 0, userAnswers = [], timerInterval, currentActiveQuizName = "";
+
+        function startQuiz(quizKey, titleText) {
+            currentActiveQuizName = titleText;
+            let db = getQuizDatabase();
+            activeQuestions = (db[quizKey] && db[quizKey].length > 0) ? db[quizKey] : [{ q: `${titleText} - السؤال التجريبي الافتراضي`, img: "", opts: ["أ) خيار 1", "ب) خيار 2", "ج) خيار 3", "د) خيار 4"], correct: 0 }];
+            switchScreen('quiz-container');
+            document.getElementById('quiz-title').innerText = titleText;
+            currentQ = 0; userAnswers = new Array(activeQuestions.length).fill(null);
+            
+            isQuestionZoomed = false;
+            document.getElementById('question-box-wrapper').classList.remove('zoomed-in');
+            document.getElementById('zoom-toggle-btn').innerText = '🔍 تكبير السؤال';
+            document.getElementById('zoom-toggle-btn').style.background = 'var(--secondary)';
+
+            loadQ(); startTimer(55 * 60);
+            setTimeout(initScratchpad, 100);
+        }
+
+        function startTimer(duration) {
+            let timer = duration, minutes, seconds;
+            clearInterval(timerInterval);
+            timerInterval = setInterval(function () {
+                minutes = parseInt(timer / 60, 10); seconds = parseInt(timer % 60, 10);
+                document.getElementById('timer-display').innerText = `⏱ ${minutes < 10 ? "0" + minutes : minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+                if (--timer < 0) { clearInterval(timerInterval); finishQuiz(); }
+            }, 1000);
+        }
+
+        function loadQ() {
+            if (currentQ < activeQuestions.length) {
+                let q = activeQuestions[currentQ];
+                document.getElementById('question-counter').innerText = `السؤال ${currentQ + 1} من ${activeQuestions.length}`;
+                document.getElementById('question-text').innerText = q.q;
+                
+                let imgTag = document.getElementById('question-image');
+                let imgWrapper = document.getElementById('image-wrapper');
+                if (q.img && q.img.trim() !== "") { 
+                    imgTag.src = q.img; imgWrapper.style.display = 'block'; 
+                } else { imgWrapper.style.display = 'none'; }
+
+                let html = '';
+                q.opts.forEach((opt, idx) => {
+                    let isSelected = (userAnswers[currentQ] === idx) ? 'selected' : '';
+                    html += `<li class="${isSelected}" onclick="selectOption(${idx}, this)">${opt}</li>`;
+                });
+                document.getElementById('options-container').innerHTML = html;
+                document.getElementById('next-q-btn').innerText = (currentQ === activeQuestions.length - 1) ? "إنهاء الاختبار ✓" : "التالية →";
+                renderPalette();
+                clearScratchpad();
+            } else { finishQuiz(); }
+        }
+
+        function renderPalette() {
+            let paletteHTML = '', unansweredCount = 0;
+            for (let i = 0; i < activeQuestions.length; i++) {
+                let btnClass = 'palette-btn';
+                if (i === currentQ) btnClass += ' current';
+                else if (userAnswers[i] !== null && userAnswers[i] !== undefined) btnClass += ' answered';
+                else { btnClass += ' skipped'; unansweredCount++; }
+                paletteHTML += `<div class="${btnClass}" onclick="jumpToQuestion(${i})">${i + 1}</div>`;
+            }
+            document.getElementById('question-palette').innerHTML = paletteHTML;
+            document.getElementById('unanswered-count-text').innerText = `عدد غير المحلول: ${unansweredCount}`;
+        }
+
+        function jumpToQuestion(idx) { currentQ = idx; loadQ(); }
+        function selectOption(idx, element) {
+            document.querySelectorAll('.options-list li').forEach(i => i.classList.remove('selected'));
+            element.classList.add('selected'); userAnswers[currentQ] = idx; renderPalette();
+        }
+
+        function nextQuestion() {
+            if (currentQ < activeQuestions.length - 1) { currentQ++; loadQ(); } else { finishQuiz(); }
+        }
+        function prevQuestion() { if (currentQ > 0) { currentQ--; loadQ(); } }
+        function finishQuizEarly() { if(confirm("إنهاء الاختبار الآن؟")) finishQuiz(); }
+
+        async function finishQuiz() {
+            clearInterval(timerInterval);
+            let score = 0;
+            activeQuestions.forEach((q, idx) => { if(userAnswers[idx] === q.correct) score++; });
+            
+            let session = JSON.parse(localStorage.getItem('current_student_session'));
+            if(session) {
+                let students = await fetchStudentsFromCloud();
+                let s = students.find(x => x.phone === session.phone);
+                if(s) {
+                    if(!s.grades) s.grades = [];
+                    s.grades.push({
+                        modelName: currentActiveQuizName,
+                        score: score,
+                        total: activeQuestions.length,
+                        date: new Date().toLocaleDateString('ar-SA')
+                    });
+                    await saveStudentToCloud(s);
+                    localStorage.setItem('current_student_session', JSON.stringify(s));
+                }
+            }
+
+            alert(`انتهى الاختبار بنجاح! \nدرجتك المسجلة: ${score} من ${activeQuestions.length}`);
+            switchScreen('main-app');
+            renderMainCategories();
+        }
+
+        let scratchCanvas, scratchCtx, isScratchPainting = false;
+        let currentPenColor = '#ef4444';
+
+        function initScratchpad() {
+            scratchCanvas = document.getElementById('scratchpad-canvas');
+            if(!scratchCanvas) return;
+            scratchCtx = scratchCanvas.getContext('2d');
+            let wrap = document.getElementById('scratchpad-wrap');
+            scratchCanvas.width = wrap.clientWidth;
+            scratchCanvas.height = wrap.clientHeight || 200;
+            scratchCtx.strokeStyle = currentPenColor; scratchCtx.lineWidth = 3; scratchCtx.lineCap = 'round';
+            
+            scratchCanvas.onmousedown = (e) => { isScratchPainting = true; drawScratch(e); };
+            scratchCanvas.onmouseup = () => { isScratchPainting = false; scratchCtx.beginPath(); };
+            scratchCanvas.onmousemove = drawScratch;
+            
+            scratchCanvas.ontouchstart = (e) => { isScratchPainting = true; drawScratch(e.touches[0]); e.preventDefault(); };
+            scratchCanvas.ontouchend = () => { isScratchPainting = false; scratchCtx.beginPath(); };
+            scratchCanvas.ontouchmove = (e) => { drawScratch(e.touches[0]); e.preventDefault(); };
+        }
+
+        function changePenColor(color) { currentPenColor = color; if(scratchCtx) scratchCtx.strokeStyle = color; }
+        function drawScratch(e) {
+            if (!isScratchPainting) return;
+            let rect = scratchCanvas.getBoundingClientRect();
+            scratchCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            scratchCtx.stroke(); scratchCtx.beginPath(); scratchCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+        function clearScratchpad() { if(scratchCtx && scratchCanvas) scratchCtx.clearRect(0, 0, scratchCanvas.width, scratchCanvas.height); }
+
+        let isQuestionZoomed = false;
+        function toggleQuestionZoom() {
+            isQuestionZoomed = !isQuestionZoomed;
+            let box = document.getElementById('question-box-wrapper');
+            let btn = document.getElementById('zoom-toggle-btn');
+            if(isQuestionZoomed) {
+                box.classList.add('zoomed-in');
+                btn.innerText = '🔍 تصغير السؤال'; btn.style.background = '#ef4444';
+            } else {
+                box.classList.remove('zoomed-in');
+                btn.innerText = '🔍 تكبير السؤال'; btn.style.background = 'var(--secondary)';
+            }
+        }
+    </script>
+</body>
+</html>
