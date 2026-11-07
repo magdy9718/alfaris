@@ -9,7 +9,7 @@
     <!-- استدعاء مكتبات Firebase سحابياً -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDkkPCD15NEuHY7Ixbi4N1q1ALtqkxcz-E",
@@ -31,8 +31,9 @@
         window.FB_DOC = doc;
         window.FB_DELETEDOC = deleteDoc;
         window.FB_UPDATEDOC = updateDoc;
+        window.FB_GETDOC = getDoc;
 
-        // تشغيل المنصة بعد تحميل سحابة جبارة
+        // تشغيل المنصة بعد تحميل السحابة
         window.dispatchEvent(new Event('firebase-ready'));
     </script>
 
@@ -237,7 +238,7 @@
                 
                 <!-- أ) إعدادات الهوية -->
                 <div class="manage-box" style="border: 2px solid var(--secondary);">
-                    <h3 style="color: var(--secondary); margin-bottom: 8px;">⚙️ 1. إعدادات الهوية والشكل العام للمنصة</h3>
+                    <h3 style="color: var(--secondary); margin-bottom: 8px;">⚙️ 1. إعدادات الهوية والشكل العام للمنصة (سحابياً)</h3>
                     
                     <label style="display:block; margin-top:6px; font-weight:700;">اسم المنصة الخاص:</label>
                     <input type="text" id="site-name-input" placeholder="مثال: منصة الفارس التعليمية">
@@ -258,13 +259,12 @@
                         <option value="#7c3aed">بنفسجي داكن</option>
                     </select>
 
-                    <button class="btn" onclick="saveSiteSettings()" style="background: var(--secondary); width: 100%; margin-top: 12px;">حفظ إعدادات المنصة 💾</button>
+                    <button class="btn" onclick="saveSiteSettings()" style="background: var(--secondary); width: 100%; margin-top: 12px;">حفظ إعدادات المنصة في السحابة 💾</button>
                 </div>
 
                 <!-- ب) إدارة الطلاب سحابياً -->
                 <div class="manage-box" style="border-color: var(--primary);">
                     <h3 style="color: var(--primary); margin-bottom: 8px;">👥 2. إدارة الطلاب سحابياً، الأكواد، ومدد الاشتراكات</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">البيانات مرتبطة بالسحابة وتتحدث فوراً مع الطلاب:</p>
                     <div style="overflow-x: auto;">
                         <table id="admin-students-table">
                             <thead>
@@ -283,7 +283,7 @@
 
                 <!-- ج) إدارة الأقسام الرئيسية -->
                 <div class="manage-box">
-                    <h3 style="color: var(--primary); margin-bottom: 6px;">📁 3. إدارة الأقسام الرئيسية</h3>
+                    <h3 style="color: var(--primary); margin-bottom: 6px;">📁 3. إدارة الأقسام الرئيسية (سحابياً)</h3>
                     <input type="text" id="new-main-cat-title" placeholder="عنوان القسم الرئيسي">
                     <button class="btn" onclick="addNewMainCategory()" style="width: 100%; margin-top: 6px;">إضافة قسم رئيسي ➕</button>
                     
@@ -296,7 +296,7 @@
 
                 <!-- د) إدارة الفروع -->
                 <div class="manage-box">
-                    <h3 style="color: var(--secondary); margin-bottom: 6px;">📂 4. إدارة الفروع</h3>
+                    <h3 style="color: var(--secondary); margin-bottom: 6px;">📂 4. إدارة الفروع (سحابياً)</h3>
                     <label>اختر القسم الرئيسي:</label>
                     <select id="parent-category-select"></select>
                     <input type="text" id="new-branch-title" placeholder="عنوان الفرع الجديد" style="margin-top:4px;">
@@ -311,7 +311,7 @@
 
                 <!-- هـ) إدارة النماذج -->
                 <div class="manage-box">
-                    <h3 style="color: var(--warning); margin-bottom: 6px;">📝 5. إدارة النماذج (من 1 إلى 50)</h3>
+                    <h3 style="color: var(--warning); margin-bottom: 6px;">📝 5. إدارة النماذج (سحابياً)</h3>
                     <label>اختر الفرع التابع له:</label>
                     <select id="branch-select-for-model"></select>
                     <input type="text" id="new-model-title" placeholder="عنوان النموذج (مثال: نموذج 1)" style="margin-top:4px;">
@@ -330,7 +330,7 @@
 
                 <!-- و) إدارة الأسئلة -->
                 <div class="manage-box">
-                    <h3 style="color: var(--success); margin-bottom: 6px;">➕ 6. إضافة وحذف الأسئلة للنماذج</h3>
+                    <h3 style="color: var(--success); margin-bottom: 6px;">➕ 6. إضافة وحذف الأسئلة للنماذج (سحابياً للجميع)</h3>
                     <label>اختر النموذج:</label>
                     <select id="question-target-model-select"></select>
 
@@ -353,7 +353,7 @@
                         <option value="2">الخيار (ج)</option>
                         <option value="3">الخيار (د)</option>
                     </select>
-                    <button class="btn btn-success" onclick="addNewQuestionToDatabase()" style="width: 100%; margin-top: 10px;">حفظ السؤال في النموذج 💾</button>
+                    <button class="btn btn-success" onclick="addNewQuestionToDatabase()" style="width: 100%; margin-top: 10px;">حفظ السؤال في السحابة للجميع 💾</button>
 
                     <div style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px;">
                         <label style="font-size:0.85rem; font-weight:750; color: var(--danger);">حذف أسئلة نموذج معين:</label>
@@ -464,22 +464,30 @@
         let pendingQuizModelId = null;
         let pendingQuizModelTitle = null;
 
-        // انتظار تحميل فايربيس ثم تشغيل المنصة
+        // انتظار تحميل السحابة ثم تشغيل المنصة
         window.addEventListener('firebase-ready', function() {
             applySiteCustomizations();
             updateAuthNavBox();
             renderMainCategories();
         });
 
-        function getAdminWhatsapp() {
-            return localStorage.getItem('site_custom_whatsapp') || "966507927427";
+        // --- دوال إعدادات المنصة سحابياً ---
+        async function fetchSiteSettingsFromCloud() {
+            try {
+                let docSnap = await window.FB_GETDOC(window.FB_DOC(window.FB_DB, "platform_data", "settings"));
+                if (docSnap.exists()) {
+                    return docSnap.data();
+                }
+            } catch(e) {}
+            return null;
         }
 
-        function applySiteCustomizations() {
-            let name = localStorage.getItem('site_custom_name') || "منصة الفارس التعليمية";
-            let logo = localStorage.getItem('site_custom_logo') || "⚔️";
-            let color = localStorage.getItem('site_custom_color') || "#4f46e5";
-            let whatsapp = getAdminWhatsapp();
+        async function applySiteCustomizations() {
+            let cloudSettings = await fetchSiteSettingsFromCloud();
+            let name = cloudSettings?.name || "منصة الفارس التعليمية";
+            let logo = cloudSettings?.logo || "⚔️";
+            let color = cloudSettings?.color || "#4f46e5";
+            let whatsapp = cloudSettings?.whatsapp || "966507927427";
 
             document.getElementById('platform-name-heading').innerText = name;
             document.getElementById('page-title').innerText = name;
@@ -505,28 +513,43 @@
             }
         }
 
-        function saveSiteSettings() {
+        async function saveSiteSettings() {
             let name = document.getElementById('site-name-input').value.trim();
             let whatsapp = document.getElementById('site-whatsapp-input').value.trim();
             let color = document.getElementById('site-theme-color-select').value;
             let logoInput = document.getElementById('site-logo-input');
 
-            if(name) localStorage.setItem('site_custom_name', name);
-            if(whatsapp) localStorage.setItem('site_custom_whatsapp', whatsapp);
-            localStorage.setItem('site_custom_color', color);
+            let existingSettings = (await fetchSiteSettingsFromCloud()) || {};
+            let logoData = existingSettings.logo || "⚔️";
+
+            let proceedSave = async (finalLogo) => {
+                let newSettings = {
+                    name: name || "منصة الفارس التعليمية",
+                    whatsapp: whatsapp || "966507927427",
+                    color: color,
+                    logo: finalLogo
+                };
+                try {
+                    await window.FB_SETDOC(window.FB_DOC(window.FB_DB, "platform_data", "settings"), newSettings);
+                    await applySiteCustomizations();
+                    alert("تم حفظ إعدادات المنصة في السحابة بنجاح!");
+                } catch(e) {
+                    alert("حدث خطأ أثناء حفظ الإعدادات السحابية.");
+                }
+            };
 
             if(logoInput.files && logoInput.files[0]) {
                 let reader = new FileReader();
-                reader.onload = function(e) {
-                    localStorage.setItem('site_custom_logo', e.target.result);
-                    applySiteCustomizations();
-                    alert("تم حفظ إعدادات الهوية بنجاح!");
-                };
+                reader.onload = function(e) { proceedSave(e.target.result); };
                 reader.readAsDataURL(logoInput.files[0]);
             } else {
-                applySiteCustomizations();
-                alert("تم حفظ إعدادات الهوية بنجاح!");
+                proceedSave(logoData);
             }
+        }
+
+        function getAdminWhatsapp() {
+            let input = document.getElementById('site-whatsapp-input');
+            return input ? input.value : "966507927427";
         }
 
         function updateAuthNavBox() {
@@ -563,16 +586,27 @@
             document.getElementById('dark-mode-btn').innerText = isDark ? '☀️ الوضع الفاتح' : '🌙 الوضع الداكن';
         }
 
-        function getCategories() {
+        // --- دوال الأقسام سحابياً ---
+        async function getCategories() {
             try {
-                let saved = localStorage.getItem('site_categories');
-                if(saved) return JSON.parse(saved);
+                let docSnap = await window.FB_GETDOC(window.FB_DOC(window.FB_DB, "platform_data", "categories"));
+                if (docSnap.exists()) {
+                    return docSnap.data().list;
+                }
             } catch(e){}
             return defaultCategoriesData;
         }
 
-        function renderMainCategories() {
-            let cats = getCategories();
+        async function saveCategoriesToCloud(cats) {
+            try {
+                await window.FB_SETDOC(window.FB_DOC(window.FB_DB, "platform_data", "categories"), { list: cats });
+            } catch(e) {
+                console.error("خطأ في حفظ الأقسام بالسحابة:", e);
+            }
+        }
+
+        async function renderMainCategories() {
+            let cats = await getCategories();
             let container = document.getElementById('main-categories-grid');
             if(!container) return;
             let html = '';
@@ -585,8 +619,8 @@
             container.innerHTML = html;
         }
 
-        function openBranches(catId) {
-            let cats = getCategories();
+        async function openBranches(catId) {
+            let cats = await getCategories();
             let cat = cats.find(c => c.id === catId);
             if(!cat) return;
 
@@ -607,8 +641,8 @@
             switchScreen('branches-screen');
         }
 
-        function openModels(catId, branchId) {
-            let cats = getCategories();
+        async function openModels(catId, branchId) {
+            let cats = await getCategories();
             let cat = cats.find(c => c.id === catId);
             let branch = cat ? cat.branches.find(b => b.id === branchId) : null;
             if(!branch) return;
@@ -741,35 +775,22 @@
             switchScreen('main-app');
         }
 
-        // --- دوال الاتصال السحابي بـ Firebase Firestore ---
+        // --- دوال الاتصال السحابي للطلاب ---
         async function fetchStudentsFromCloud() {
             try {
                 let querySnapshot = await window.FB_GETDOCS(window.FB_COLLECTION(window.FB_DB, "students"));
                 let list = [];
-                querySnapshot.forEach((doc) => {
-                    list.push(doc.data());
-                });
+                querySnapshot.forEach((doc) => { list.push(doc.data()); });
                 return list;
-            } catch (e) {
-                console.error("خطأ في جلب الطلاب:", e);
-                return [];
-            }
+            } catch (e) { return []; }
         }
 
         async function saveStudentToCloud(student) {
-            try {
-                await window.FB_SETDOC(window.FB_DOC(window.FB_DB, "students", student.phone), student);
-            } catch (e) {
-                console.error("خطأ في حفظ الطالب:", e);
-            }
+            try { await window.FB_SETDOC(window.FB_DOC(window.FB_DB, "students", student.phone), student); } catch (e) {}
         }
 
         async function deleteStudentFromCloud(phone) {
-            try {
-                await window.FB_DELETEDOC(window.FB_DOC(window.FB_DB, "students", phone));
-            } catch (e) {
-                console.error("خطأ في حذف الطالب:", e);
-            }
+            try { await window.FB_DELETEDOC(window.FB_DOC(window.FB_DB, "students", phone)); } catch (e) {}
         }
 
         function verifyAdmin() {
@@ -791,7 +812,7 @@
             }
 
             let html = '';
-            students.forEach((s, sIdx) => {
+            students.forEach((s) => {
                 if(!s.code) s.code = 'FARIS-' + Math.floor(1000 + Math.random() * 9000);
                 if(!s.duration) s.duration = 'شهر واحد';
 
@@ -848,9 +869,7 @@
             if(durationStr === 'مفتوح') days = 3650;
 
             s.durationDays = days;
-            if(s.active) {
-                s.expiryDate = new Date().getTime() + (days * 24 * 60 * 60 * 1000);
-            }
+            if(s.active) { s.expiryDate = new Date().getTime() + (days * 24 * 60 * 60 * 1000); }
             await saveStudentToCloud(s);
             loadAdminStudentsTable();
             alert("تم تحديث مدة اشتراك الطالب بنجاح!");
@@ -865,9 +884,7 @@
             if(s.active) {
                 let days = s.durationDays || 30;
                 s.expiryDate = new Date().getTime() + (days * 24 * 60 * 60 * 1000);
-            } else {
-                s.expiryDate = null;
-            }
+            } else { s.expiryDate = null; }
             await saveStudentToCloud(s);
             loadAdminStudentsTable();
         }
@@ -889,75 +906,75 @@
             }
         }
 
-        function addNewMainCategory() {
+        async function addNewMainCategory() {
             let title = document.getElementById('new-main-cat-title').value.trim();
             if(!title) return alert("أدخل عنوان القسم الرئيسي!");
-            let cats = getCategories();
+            let cats = await getCategories();
             cats.push({ id: 'cat_' + Date.now(), title: title, branches: [] });
-            localStorage.setItem('site_categories', JSON.stringify(cats));
-            alert("تم إضافة القسم الرئيسي بنجاح!");
+            await saveCategoriesToCloud(cats);
+            alert("تم إضافة القسم الرئيسي في السحابة بنجاح!");
             document.getElementById('new-main-cat-title').value = '';
             populateAdminSelects(); renderMainCategories();
         }
 
-        function deleteMainCategoryBtn() {
+        async function deleteMainCategoryBtn() {
             let catId = document.getElementById('delete-main-cat-select').value;
             if(!catId) return alert("اختر القسم المراد حذفه!");
             if(!confirm("حذف هذا القسم الرئيسي بالكامل؟")) return;
-            let cats = getCategories();
+            let cats = await getCategories();
             cats = cats.filter(c => c.id !== catId);
-            localStorage.setItem('site_categories', JSON.stringify(cats));
+            await saveCategoriesToCloud(cats);
             alert("تم حذف القسم بنجاح!");
             populateAdminSelects(); renderMainCategories();
         }
 
-        function addNewBranch() {
+        async function addNewBranch() {
             let parentId = document.getElementById('parent-category-select').value;
             let title = document.getElementById('new-branch-title').value.trim();
             if(!title) return alert("أدخل عنوان الفرع!");
-            let cats = getCategories();
+            let cats = await getCategories();
             let mainCat = cats.find(c => c.id === parentId);
             if(!mainCat) return alert("القسم غير موجود!");
             if(!mainCat.branches) mainCat.branches = [];
             mainCat.branches.push({ id: 'br_' + Date.now(), name: title, models: [] });
-            localStorage.setItem('site_categories', JSON.stringify(cats));
-            alert("تم إضافة الفرع بنجاح!");
+            await saveCategoriesToCloud(cats);
+            alert("تم إضافة الفرع في السحابة بنجاح!");
             document.getElementById('new-branch-title').value = '';
             populateAdminSelects(); renderMainCategories();
         }
 
-        function deleteBranchBtn() {
+        async function deleteBranchBtn() {
             let branchId = document.getElementById('delete-branch-select').value;
             if(!branchId) return alert("اختر الفرع المراد حذفه!");
             if(!confirm("حذف هذا الفرع؟")) return;
-            let cats = getCategories();
+            let cats = await getCategories();
             cats.forEach(c => { if(c.branches) c.branches = c.branches.filter(b => b.id !== branchId); });
-            localStorage.setItem('site_categories', JSON.stringify(cats));
+            await saveCategoriesToCloud(cats);
             alert("تم حذف الفرع بنجاح!");
             populateAdminSelects(); renderMainCategories();
         }
 
-        function addNewModel() {
+        async function addNewModel() {
             let branchId = document.getElementById('branch-select-for-model').value;
             let title = document.getElementById('new-model-title').value.trim();
             if(!title) return alert("أدخل عنوان النموذج!");
-            let cats = getCategories();
+            let cats = await getCategories();
             let targetBranch = null;
             cats.forEach(c => { if(c.branches) { let b = c.branches.find(x => x.id === branchId); if(b) targetBranch = b; } });
             if(!targetBranch) return alert("الفرع غير موجود!");
             if(!targetBranch.models) targetBranch.models = [];
             targetBranch.models.push({ id: 'm_' + Date.now(), name: title });
-            localStorage.setItem('site_categories', JSON.stringify(cats));
-            alert("تم إضافة النموذج بنجاح!");
+            await saveCategoriesToCloud(cats);
+            alert("تم إضافة النموذج في السحابة بنجاح!");
             document.getElementById('new-model-title').value = '';
             populateAdminSelects(); renderMainCategories();
         }
 
-        function autoGenerate50Models() {
+        async function autoGenerate50Models() {
             let branchId = document.getElementById('branch-select-for-model').value;
             if(!branchId) return alert("اختر الفرع أولاً!");
             if(!confirm("إنشاء 50 نموذجاً تلقائياً في هذا الفرع؟")) return;
-            let cats = getCategories();
+            let cats = await getCategories();
             let targetBranch = null;
             cats.forEach(c => { if(c.branches) { let b = c.branches.find(x => x.id === branchId); if(b) targetBranch = b; } });
             if(!targetBranch) return alert("الفرع غير موجود!");
@@ -965,16 +982,16 @@
             for(let i = 1; i <= 50; i++) {
                 targetBranch.models.push({ id: `m_auto_${branchId}_${i}_${Date.now()}`, name: `النموذج ${i}` });
             }
-            localStorage.setItem('site_categories', JSON.stringify(cats));
-            alert("تم إنشاء 50 نموذجاً بنجاح!");
+            await saveCategoriesToCloud(cats);
+            alert("تم إنشاء 50 نموذجاً في السحابة بنجاح!");
             populateAdminSelects(); renderMainCategories();
         }
 
-        function deleteModelBtn() {
+        async function deleteModelBtn() {
             let modelId = document.getElementById('delete-model-select').value;
             if(!modelId) return alert("اختر النموذج المراد حذفه!");
             if(!confirm("حذف هذا النموذج؟")) return;
-            let cats = getCategories();
+            let cats = await getCategories();
             cats.forEach(c => {
                 if(c.branches) {
                     c.branches.forEach(b => {
@@ -982,24 +999,25 @@
                     });
                 }
             });
-            localStorage.setItem('site_categories', JSON.stringify(cats));
+            await saveCategoriesToCloud(cats);
             alert("تم حذف النموذج بنجاح!");
             populateAdminSelects(); renderMainCategories();
         }
 
-        function getQuizDatabase() {
+        // --- دوال الأسئلة سحابياً للجميع ---
+        async function getQuizDatabaseForModel(modelKey) {
             try {
-                let savedDB = localStorage.getItem('site_quiz_database');
-                if (savedDB) return JSON.parse(savedDB);
-            } catch(e){}
-            return {
-                "m_zubda_1": [
-                    { q: "سؤال تجريبي: قارن بين القيمتين 5 + 5 × 2 و 20", img: "", opts: ["أ) القيمة الأولى أكبر", "ب) القيمة الثانية أكبر", "ج) القيمتان متساويتان", "د) المعطيات غير كافية"], correct: 2 }
-                ]
-            };
+                let docSnap = await window.FB_GETDOC(window.FB_DOC(window.FB_DB, "quiz_questions", modelKey));
+                if (docSnap.exists()) {
+                    return docSnap.data().questions || [];
+                }
+            } catch(e) {}
+            return [
+                { q: "سؤال تجريبي: قارن بين القيمتين 5 + 5 × 2 و 20", img: "", opts: ["أ) القيمة الأولى أكبر", "ب) القيمة الثانية أكبر", "ج) القيمتان متساويتان", "د) المعطيات غير كافية"], correct: 2 }
+            ];
         }
 
-        function populateAdminSelects() {
+        async function populateAdminSelects() {
             let mainDelSelect = document.getElementById('delete-main-cat-select');
             let parentSelect = document.getElementById('parent-category-select');
             let branchDelSelect = document.getElementById('delete-branch-select');
@@ -1008,7 +1026,7 @@
             let modelSelect = document.getElementById('question-target-model-select');
             let manageSelect = document.getElementById('manage-questions-select');
 
-            let cats = getCategories();
+            let cats = await getCategories();
             let mainOpts = '', parentOpts = '', branchOpts = '', modelOpts = '';
 
             cats.forEach(cat => {
@@ -1035,7 +1053,7 @@
             if(manageSelect) { manageSelect.innerHTML = modelOpts; loadQuestionsForManagement(); }
         }
 
-        function addNewQuestionToDatabase() {
+        async function addNewQuestionToDatabase() {
             let targetKey = document.getElementById('question-target-model-select').value;
             if(!targetKey) return alert("اختر النموذج أولاً!");
             let qText = document.getElementById('new-q-text').value.trim();
@@ -1048,35 +1066,46 @@
 
             if (!qText && imgInput.files.length === 0) return alert("اكتب السؤال أو ارفع صورة!");
 
-            let db = getQuizDatabase();
-            if(!db[targetKey]) db[targetKey] = [];
+            let currentQuestions = await getQuizDatabaseForModel(targetKey);
 
-            let saveQ = (imgData) => {
-                db[targetKey].push({ q: qText || "سؤال مصور", img: imgData || "", opts: [opt0||"أ", opt1||"ب", opt2||"ج", opt3||"د"], correct: correctIdx });
-                localStorage.setItem('site_quiz_database', JSON.stringify(db));
-                alert("تم حفظ السؤال بنجاح!");
-                document.getElementById('new-q-text').value = '';
-                document.getElementById('opt-0').value = '';
-                document.getElementById('opt-1').value = '';
-                document.getElementById('opt-2').value = '';
-                document.getElementById('opt-3').value = '';
-                document.getElementById('new-q-img').value = '';
-                loadQuestionsForManagement();
+            let saveQToCloud = async (imgData) => {
+                currentQuestions.push({ 
+                    q: qText || "سؤال مصور", 
+                    img: imgData || "", 
+                    opts: [opt0||"أ", opt1||"ب", opt2||"ج", opt3||"د"], 
+                    correct: correctIdx 
+                });
+
+                try {
+                    await window.FB_SETDOC(window.FB_DOC(window.FB_DB, "quiz_questions", targetKey), {
+                        questions: currentQuestions
+                    });
+                    alert("تم حفظ السؤال في السحابة وسيظهر لجميع الطلاب فوراً! 🚀");
+                    
+                    document.getElementById('new-q-text').value = '';
+                    document.getElementById('opt-0').value = '';
+                    document.getElementById('opt-1').value = '';
+                    document.getElementById('opt-2').value = '';
+                    document.getElementById('opt-3').value = '';
+                    document.getElementById('new-q-img').value = '';
+                    loadQuestionsForManagement();
+                } catch(e) {
+                    alert("حدث خطأ أثناء الحفظ بالسحابة.");
+                }
             };
 
             if (imgInput.files && imgInput.files[0]) {
                 let reader = new FileReader();
-                reader.onload = (e) => saveQ(e.target.result);
+                reader.onload = (e) => saveQToCloud(e.target.result);
                 reader.readAsDataURL(imgInput.files[0]);
-            } else { saveQ(""); }
+            } else { saveQToCloud(""); }
         }
 
-        function loadQuestionsForManagement() {
+        async function loadQuestionsForManagement() {
             let targetKey = document.getElementById('manage-questions-select').value;
-            let db = getQuizDatabase();
             let container = document.getElementById('questions-manage-list');
             if(!container) return;
-            let questions = db[targetKey] || [];
+            let questions = await getQuizDatabaseForModel(targetKey);
             if(!questions.length) { container.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">لا توجد أسئلة مضافة.</p>'; return; }
             
             let html = '';
@@ -1089,23 +1118,24 @@
             container.innerHTML = html;
         }
 
-        function deleteQuestion(targetKey, qIndex) {
-            if(!confirm("حذف هذا السؤال؟")) return;
-            let db = getQuizDatabase();
-            if(db[targetKey]) {
-                db[targetKey].splice(qIndex, 1);
-                localStorage.setItem('site_quiz_database', JSON.stringify(db));
-                alert("تم حذف السؤال!");
+        async function deleteQuestion(targetKey, qIndex) {
+            if(!confirm("حذف هذا السؤال من السحابة؟")) return;
+            let questions = await getQuizDatabaseForModel(targetKey);
+            if(questions) {
+                questions.splice(qIndex, 1);
+                await window.FB_SETDOC(window.FB_DOC(window.FB_DB, "quiz_questions", targetKey), { questions: questions });
+                alert("تم حذف السؤال من السحابة!");
                 loadQuestionsForManagement();
             }
         }
 
         let activeQuestions = [], currentQ = 0, userAnswers = [], timerInterval, currentActiveQuizName = "";
 
-        function startQuiz(quizKey, titleText) {
+        async function startQuiz(quizKey, titleText) {
             currentActiveQuizName = titleText;
-            let db = getQuizDatabase();
-            activeQuestions = (db[quizKey] && db[quizKey].length > 0) ? db[quizKey] : [{ q: `${titleText} - السؤال التجريبي الافتراضي`, img: "", opts: ["أ) خيار 1", "ب) خيار 2", "ج) خيار 3", "د) خيار 4"], correct: 0 }];
+            let cloudQuestions = await getQuizDatabaseForModel(quizKey);
+            activeQuestions = (cloudQuestions && cloudQuestions.length > 0) ? cloudQuestions : [{ q: `${titleText} - لا توجد أسئلة مضافة بعد`, img: "", opts: ["أ) خيار 1", "ب) خيار 2", "ج) خيار 3", "د) خيار 4"], correct: 0 }];
+            
             switchScreen('quiz-container');
             document.getElementById('quiz-title').innerText = titleText;
             currentQ = 0; userAnswers = new Array(activeQuestions.length).fill(null);
