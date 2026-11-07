@@ -33,7 +33,6 @@
         window.FB_UPDATEDOC = updateDoc;
         window.FB_GETDOC = getDoc;
 
-        // تشغيل المنصة بعد تحميل السحابة
         window.dispatchEvent(new Event('firebase-ready'));
     </script>
 
@@ -154,8 +153,6 @@
 <body>
 
     <div class="container">
-        
-        <!-- الشريط العلوي -->
         <div class="top-bar">
             <div class="top-bar-left">
                 <button class="theme-toggle-btn" onclick="toggleDarkMode()" id="dark-mode-btn">🌙 الوضع الداكن</button>
@@ -163,7 +160,6 @@
             <div id="auth-nav-box"></div>
         </div>
 
-        <!-- 1. الشاشة الرئيسية -->
         <div id="main-app" class="screen active">
             <header>
                 <div class="logo-badge" id="header-logo-badge">⚔️</div>
@@ -182,7 +178,6 @@
             </div>
         </div>
 
-        <!-- 2. شاشة الأقسام الفرعية -->
         <div id="branches-screen" class="screen card-box">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h2 id="branches-title" style="color: var(--primary);"></h2>
@@ -192,7 +187,6 @@
             <div id="branches-grid" class="grid-cards"></div>
         </div>
 
-        <!-- 3. شاشة النماذج -->
         <div id="models-screen" class="screen card-box">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h2 id="models-title" style="color: var(--primary);"></h2>
@@ -202,7 +196,6 @@
             <div id="models-grid" class="grid-cards"></div>
         </div>
 
-        <!-- 4. شاشة التسجيل للطالب -->
         <div id="student-auth-screen" class="screen card-box" style="max-width: 500px; margin: 30px auto;">
             <div class="logo-badge" id="auth-logo-badge">🎓</div>
             <h2 style="color: var(--primary); margin-bottom: 10px;">سجل بياناتك في المنصة</h2>
@@ -214,7 +207,6 @@
             <br><button class="btn" style="background: #64748b; margin-top: 12px; width: 100%;" onclick="switchScreen('main-app')">← العودة للرئيسية</button>
         </div>
 
-        <!-- 5. شاشة بانتظار تفعيل المشرف مع رسالة واتساب جاهزة -->
         <div id="activation-pending-screen" class="screen card-box" style="max-width: 500px; margin: 30px auto;">
             <h2 style="color: var(--warning); margin-bottom: 10px;">🔒 حسابك بانتظار التفعيل</h2>
             <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px;">اضغط على الزر أدناه لإرسال رسالة تفعيل عبر الواتساب للمشرف ليمنحك كودك الخاص ومدة الاشتراك:</p>
@@ -226,7 +218,6 @@
             <br><button class="btn" style="background: #64748b; margin-top: 12px; width: 100%;" onclick="switchScreen('main-app')">← العودة للرئيسية</button>
         </div>
 
-        <!-- 6. لوحة تحكم المشرف الشاملة -->
         <div id="admin-screen" class="screen card-box">
             <h2 style="color: var(--primary); margin-bottom: 20px;">🛠 لوحة تحكم المشرف الشاملة</h2>
             <div id="admin-login-box">
@@ -235,21 +226,15 @@
             </div>
             
             <div id="admin-dashboard-box" style="display: none; text-align: right;">
-                
-                <!-- أ) إعدادات الهوية -->
                 <div class="manage-box" style="border: 2px solid var(--secondary);">
                     <h3 style="color: var(--secondary); margin-bottom: 8px;">⚙️ 1. إعدادات الهوية والشكل العام للمنصة (سحابياً)</h3>
-                    
                     <label style="display:block; margin-top:6px; font-weight:700;">اسم المنصة الخاص:</label>
                     <input type="text" id="site-name-input" placeholder="مثال: منصة الفارس التعليمية">
-
-                    <label style="display:block; margin-top:6px; font-weight:700;">رقم الواتساب الخاص بك (لاستقبال طلبات التفعيل):</label>
+                    <label style="display:block; margin-top:6px; font-weight:700;">رقم الواتساب الخاص بك:</label>
                     <input type="text" id="site-whatsapp-input" placeholder="مثال: 966507927427">
-
-                    <label style="display:block; margin-top:8px; font-weight:700;">شعار المنصة (اختر صورة من جهازك):</label>
+                    <label style="display:block; margin-top:8px; font-weight:700;">شعار المنصة:</label>
                     <input type="file" id="site-logo-input" accept="image/*" style="background: var(--card-bg); padding: 4px;">
-
-                    <label style="display:block; margin-top:8px; font-weight:700;">أو اختر لون المظهر الرئيسي للمنصة:</label>
+                    <label style="display:block; margin-top:8px; font-weight:700;">لون المظهر الرئيسي:</label>
                     <select id="site-theme-color-select">
                         <option value="#4f46e5">بنفسجي كلاسيكي (الافتراضي)</option>
                         <option value="#2563eb">أزرق ملكي</option>
@@ -258,11 +243,9 @@
                         <option value="#d97706">برتقالي ذهبي</option>
                         <option value="#7c3aed">بنفسجي داكن</option>
                     </select>
-
                     <button class="btn" onclick="saveSiteSettings()" style="background: var(--secondary); width: 100%; margin-top: 12px;">حفظ إعدادات المنصة في السحابة 💾</button>
                 </div>
 
-                <!-- ب) إدارة الطلاب سحابياً -->
                 <div class="manage-box" style="border-color: var(--primary);">
                     <h3 style="color: var(--primary); margin-bottom: 8px;">👥 2. إدارة الطلاب سحابياً، الأكواد، ومدد الاشتراكات</h3>
                     <div style="overflow-x: auto;">
@@ -281,12 +264,10 @@
                     </div>
                 </div>
 
-                <!-- ج) إدارة الأقسام الرئيسية -->
                 <div class="manage-box">
                     <h3 style="color: var(--primary); margin-bottom: 6px;">📁 3. إدارة الأقسام الرئيسية (سحابياً)</h3>
                     <input type="text" id="new-main-cat-title" placeholder="عنوان القسم الرئيسي">
                     <button class="btn" onclick="addNewMainCategory()" style="width: 100%; margin-top: 6px;">إضافة قسم رئيسي ➕</button>
-                    
                     <div style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px;">
                         <label style="font-size:0.85rem; font-weight:750; color: var(--danger);">حذف قسم رئيسي:</label>
                         <select id="delete-main-cat-select" style="margin-top:4px;"></select>
@@ -294,14 +275,12 @@
                     </div>
                 </div>
 
-                <!-- د) إدارة الفروع -->
                 <div class="manage-box">
                     <h3 style="color: var(--secondary); margin-bottom: 6px;">📂 4. إدارة الفروع (سحابياً)</h3>
                     <label>اختر القسم الرئيسي:</label>
                     <select id="parent-category-select"></select>
                     <input type="text" id="new-branch-title" placeholder="عنوان الفرع الجديد" style="margin-top:4px;">
                     <button class="btn" onclick="addNewBranch()" style="background: var(--secondary); width: 100%; margin-top: 6px;">إضافة الفرع ➕</button>
-
                     <div style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px;">
                         <label style="font-size:0.85rem; font-weight:750; color: var(--danger);">حذف فرع:</label>
                         <select id="delete-branch-select" style="margin-top:4px;"></select>
@@ -309,18 +288,15 @@
                     </div>
                 </div>
 
-                <!-- هـ) إدارة النماذج -->
                 <div class="manage-box">
                     <h3 style="color: var(--warning); margin-bottom: 6px;">📝 5. إدارة النماذج (سحابياً)</h3>
                     <label>اختر الفرع التابع له:</label>
                     <select id="branch-select-for-model"></select>
                     <input type="text" id="new-model-title" placeholder="عنوان النموذج (مثال: نموذج 1)" style="margin-top:4px;">
-                    
                     <div style="display: flex; gap: 8px; margin-top: 6px;">
                         <button class="btn" onclick="addNewModel()" style="background: var(--warning); flex: 1;">إضافة نموذج ➕</button>
                         <button class="btn" onclick="autoGenerate50Models()" style="background: #8b5cf6; flex: 1;">توليد 50 نموذجاً ⚡</button>
                     </div>
-
                     <div style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px;">
                         <label style="font-size:0.85rem; font-weight:750; color: var(--danger);">حذف نموذج:</label>
                         <select id="delete-model-select" style="margin-top:4px;"></select>
@@ -328,7 +304,6 @@
                     </div>
                 </div>
 
-                <!-- و) إدارة الأسئلة -->
                 <div class="manage-box">
                     <h3 style="color: var(--success); margin-bottom: 6px;">➕ 6. إضافة وحذف الأسئلة للنماذج (سحابياً للجميع)</h3>
                     <label>اختر النموذج:</label>
@@ -337,7 +312,7 @@
                     <label style="margin-top: 6px; display:block;">نص السؤال:</label>
                     <textarea id="new-q-text" rows="2" placeholder="اكتب نص السؤال..."></textarea>
 
-                    <label style="margin-top: 6px; display:block;">صورة السؤال (اختياري):</label>
+                    <label style="margin-top: 6px; display:block;">صورة السؤال (اختياري - يتم ضغطها تلقائياً لتفادي أخطاء الحجم):</label>
                     <input type="file" id="new-q-img" accept="image/*" style="background: var(--card-bg); padding: 4px;">
 
                     <label style="margin-top: 6px; display:block;">الخيارات الثابتة (أ، ب، ج، د):</label>
@@ -361,12 +336,10 @@
                         <div id="questions-manage-list" style="margin-top: 6px; max-height: 150px; overflow-y: auto;"></div>
                     </div>
                 </div>
-
             </div>
             <br><button class="btn" style="background: #64748b; margin-top: 15px; width: 100%;" onclick="switchScreen('main-app')">← خروج من لوحة المشرف</button>
         </div>
 
-        <!-- 7. شاشة الاختبار للطالب -->
         <div id="quiz-container" class="screen">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h2 id="quiz-title" style="color: var(--primary); font-size: 1.2rem;"></h2>
@@ -423,7 +396,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <script>
@@ -464,20 +436,16 @@
         let pendingQuizModelId = null;
         let pendingQuizModelTitle = null;
 
-        // انتظار تحميل السحابة ثم تشغيل المنصة
         window.addEventListener('firebase-ready', function() {
             applySiteCustomizations();
             updateAuthNavBox();
             renderMainCategories();
         });
 
-        // --- دوال إعدادات المنصة سحابياً ---
         async function fetchSiteSettingsFromCloud() {
             try {
                 let docSnap = await window.FB_GETDOC(window.FB_DOC(window.FB_DB, "platform_data", "settings"));
-                if (docSnap.exists()) {
-                    return docSnap.data();
-                }
+                if (docSnap.exists()) { return docSnap.data(); }
             } catch(e) {}
             return null;
         }
@@ -569,13 +537,8 @@
         function switchScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
-            if(screenId === 'main-app') {
-                renderMainCategories();
-            }
-            if(screenId === 'admin-screen') {
-                populateAdminSelects();
-                loadAdminStudentsTable();
-            }
+            if(screenId === 'main-app') { renderMainCategories(); }
+            if(screenId === 'admin-screen') { populateAdminSelects(); loadAdminStudentsTable(); }
             updateAuthNavBox();
         }
 
@@ -586,13 +549,10 @@
             document.getElementById('dark-mode-btn').innerText = isDark ? '☀️ الوضع الفاتح' : '🌙 الوضع الداكن';
         }
 
-        // --- دوال الأقسام سحابياً ---
         async function getCategories() {
             try {
                 let docSnap = await window.FB_GETDOC(window.FB_DOC(window.FB_DB, "platform_data", "categories"));
-                if (docSnap.exists()) {
-                    return docSnap.data().list;
-                }
+                if (docSnap.exists()) { return docSnap.data().list; }
             } catch(e){}
             return defaultCategoriesData;
         }
@@ -600,9 +560,7 @@
         async function saveCategoriesToCloud(cats) {
             try {
                 await window.FB_SETDOC(window.FB_DOC(window.FB_DB, "platform_data", "categories"), { list: cats });
-            } catch(e) {
-                console.error("خطأ في حفظ الأقسام بالسحابة:", e);
-            }
+            } catch(e) {}
         }
 
         async function renderMainCategories() {
@@ -670,10 +628,7 @@
             if(!student.active) return false;
             if(!student.expiryDate) return true;
             let now = new Date().getTime();
-            if(now > student.expiryDate) {
-                student.active = false;
-                return false;
-            }
+            if(now > student.expiryDate) { student.active = false; return false; }
             return true;
         }
 
@@ -682,10 +637,7 @@
             pendingQuizModelTitle = fullTitle;
 
             let sessionStr = localStorage.getItem('current_student_session');
-            if(!sessionStr) {
-                switchScreen('student-auth-screen');
-                return;
-            }
+            if(!sessionStr) { switchScreen('student-auth-screen'); return; }
 
             let session = JSON.parse(sessionStr);
             let students = await fetchStudentsFromCloud();
@@ -695,10 +647,7 @@
                 localStorage.setItem('current_student_session', JSON.stringify(student));
                 startQuiz(modelId, fullTitle);
             } else {
-                if(student) {
-                    student.active = false;
-                    await saveStudentToCloud(student);
-                }
+                if(student) { student.active = false; await saveStudentToCloud(student); }
                 setupPendingWhatsApp(student || session);
                 switchScreen('activation-pending-screen');
             }
@@ -714,16 +663,7 @@
             
             if (!existing) {
                 let uniqueCode = 'FARIS-' + Math.floor(1000 + Math.random() * 9000);
-                existing = { 
-                    name: name, 
-                    phone: phone, 
-                    active: false, 
-                    code: uniqueCode, 
-                    duration: 'شهر واحد', 
-                    durationDays: 30,
-                    expiryDate: null, 
-                    grades: [] 
-                };
+                existing = { name: name, phone: phone, active: false, code: uniqueCode, duration: 'شهر واحد', durationDays: 30, expiryDate: null, grades: [] };
             }
 
             await saveStudentToCloud(existing);
@@ -757,7 +697,6 @@
                 s.active = true;
                 let days = s.durationDays || 30;
                 s.expiryDate = new Date().getTime() + (days * 24 * 60 * 60 * 1000);
-
                 await saveStudentToCloud(s);
                 localStorage.setItem('current_student_session', JSON.stringify(s));
                 alert("تم تفعيل حسابك بنجاح!");
@@ -775,7 +714,6 @@
             switchScreen('main-app');
         }
 
-        // --- دوال الاتصال السحابي للطلاب ---
         async function fetchStudentsFromCloud() {
             try {
                 let querySnapshot = await window.FB_GETDOCS(window.FB_COLLECTION(window.FB_DB, "students"));
@@ -861,13 +799,11 @@
             let students = await fetchStudentsFromCloud();
             let s = students.find(x => x.phone === phone);
             if(!s) return;
-
             s.duration = durationStr;
             let days = 30;
             if(durationStr === '3 أشهر') days = 90;
             if(durationStr === 'سنة كاملة') days = 365;
             if(durationStr === 'مفتوح') days = 3650;
-
             s.durationDays = days;
             if(s.active) { s.expiryDate = new Date().getTime() + (days * 24 * 60 * 60 * 1000); }
             await saveStudentToCloud(s);
@@ -879,7 +815,6 @@
             let students = await fetchStudentsFromCloud();
             let s = students.find(x => x.phone === phone);
             if(!s) return;
-
             s.active = !s.active;
             if(s.active) {
                 let days = s.durationDays || 30;
@@ -896,7 +831,7 @@
         }
 
         async function deleteStudentGrade(phone, gIdx) {
-            if(!confirm("حذف درجة هذا الاختبار للط الطالب؟")) return;
+            if(!confirm("حذف درجة هذا الاختبار للطالب؟")) return;
             let students = await fetchStudentsFromCloud();
             let s = students.find(x => x.phone === phone);
             if(s && s.grades) {
@@ -1004,13 +939,10 @@
             populateAdminSelects(); renderMainCategories();
         }
 
-        // --- دوال الأسئلة سحابياً للجميع ---
         async function getQuizDatabaseForModel(modelKey) {
             try {
                 let docSnap = await window.FB_GETDOC(window.FB_DOC(window.FB_DB, "quiz_questions", modelKey));
-                if (docSnap.exists()) {
-                    return docSnap.data().questions || [];
-                }
+                if (docSnap.exists()) { return docSnap.data().questions || []; }
             } catch(e) {}
             return [];
         }
@@ -1051,6 +983,33 @@
             if(manageSelect) { manageSelect.innerHTML = modelOpts; loadQuestionsForManagement(); }
         }
 
+        // دالة ضغط الصورة تلقائياً لتقليل حجمها قبل الرفع لتفادي خطأ الحجم
+        function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.7) {
+            return new Promise((resolve) => {
+                let reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = function (event) {
+                    let img = new Image();
+                    img.src = event.target.result;
+                    img.onload = function () {
+                        let canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > height) {
+                            if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
+                        } else {
+                            if (height > maxHeight) { width *= maxHeight / height; height = maxHeight; }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        let ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                };
+            });
+        }
+
         async function addNewQuestionToDatabase() {
             let targetKey = document.getElementById('question-target-model-select').value;
             if(!targetKey) return alert("اختر النموذج أولاً!");
@@ -1064,39 +1023,39 @@
 
             if (!qText && imgInput.files.length === 0) return alert("اكتب السؤال أو ارفع صورة!");
 
-            let currentQuestions = await getQuizDatabaseForModel(targetKey);
+            try {
+                let currentQuestions = await getQuizDatabaseForModel(targetKey);
+                let imgData = "";
 
-            let saveQToCloud = async (imgData) => {
+                if (imgInput.files && imgInput.files[0]) {
+                    // ضغط الصورة تلقائياً لتفادي تجاوز الحد المسموح به في فايربيس
+                    imgData = await compressImage(imgInput.files[0]);
+                }
+
                 currentQuestions.push({ 
                     q: qText || "سؤال مصور", 
-                    img: imgData || "", 
+                    img: imgData, 
                     opts: [opt0||"أ", opt1||"ب", opt2||"ج", opt3||"د"], 
                     correct: correctIdx 
                 });
 
-                try {
-                    await window.FB_SETDOC(window.FB_DOC(window.FB_DB, "quiz_questions", targetKey), {
-                        questions: currentQuestions
-                    });
-                    alert(`تم حفظ السؤال في السحابة بنجاح! الإجمالي الحالي: ${currentQuestions.length} سؤال 🚀`);
-                    
-                    document.getElementById('new-q-text').value = '';
-                    document.getElementById('opt-0').value = '';
-                    document.getElementById('opt-1').value = '';
-                    document.getElementById('opt-2').value = '';
-                    document.getElementById('opt-3').value = '';
-                    document.getElementById('new-q-img').value = '';
-                    loadQuestionsForManagement();
-                } catch(e) {
-                    alert("حدث خطأ أثناء الحفظ بالسحابة.");
-                }
-            };
-
-            if (imgInput.files && imgInput.files[0]) {
-                let reader = new FileReader();
-                reader.onload = (e) => saveQToCloud(e.target.result);
-                reader.readAsDataURL(imgInput.files[0]);
-            } else { saveQToCloud(""); }
+                await window.FB_SETDOC(window.FB_DOC(window.FB_DB, "quiz_questions", targetKey), {
+                    questions: currentQuestions
+                });
+                
+                alert(`تم حفظ السؤال في السحابة بنجاح! الإجمالي الحالي: ${currentQuestions.length} سؤال 🚀`);
+                
+                document.getElementById('new-q-text').value = '';
+                document.getElementById('opt-0').value = '';
+                document.getElementById('opt-1').value = '';
+                document.getElementById('opt-2').value = '';
+                document.getElementById('opt-3').value = '';
+                document.getElementById('new-q-img').value = '';
+                loadQuestionsForManagement();
+            } catch(e) {
+                console.error("خطأ الحفظ:", e);
+                alert("حدث خطأ أثناء الحفظ بالسحابة: " + e.message);
+            }
         }
 
         async function loadQuestionsForManagement() {
