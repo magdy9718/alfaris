@@ -220,27 +220,36 @@
         <div id="admin-screen" class="screen card-box">
             <h2 style="color: var(--primary); margin-bottom: 20px;">🛠 لوحة تحكم المشرفين الشاملة</h2>
             <div id="admin-login-box">
-                <input type="text" id="admin-user-input" placeholder="اسم المستخدم أو رقم المشرف (اتركه فارغاً أو اكتب اسمك إذا كنت المدير الرئيسي)">
+                <input type="text" id="admin-user-input" placeholder="اسم المستخدم (مثال: sly)">
                 <input type="password" id="admin-pass-input" placeholder="كلمة المرور الخاصة بالمشرف">
                 <button class="btn" onclick="verifyAdmin()" style="width: 100%; margin-top: 10px;">دخول المشرف 🔐</button>
             </div>
             
             <div id="admin-dashboard-box" style="display: none; text-align: right;">
                 <div id="super-admin-settings-panel">
-                    <div class="manage-box" style="border: 2px solid var(--warning); background: rgba(245, 158, 11, 0.03);">
-                        <h3 style="color: var(--warning); margin-bottom: 8px;">👑 إدارة المشرفين الفرعيين (خاص بالمدير الرئيسي فقط)</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">أضف مشرفاً مساعداً معك بصلاحيات إدارة كاملة ولا يستطيع حذف حسابك:</p>
+                    <!-- لوحة التحكم الخاصة بالمدير الرئيسي (تعديل بيانات دخوله + إضافة مشرفين) -->
+                    <div class="manage-box" style="border: 2px solid var(--danger); background: rgba(239, 68, 68, 0.03);">
+                        <h3 style="color: var(--danger); margin-bottom: 8px;">👑 لوحة المدير الرئيسي (صلاحيات مطلقة)</h3>
+                        
+                        <div style="background: var(--card-bg); padding: 12px; border-radius: 10px; margin-bottom: 12px; border: 1px solid var(--border-color);">
+                            <label style="font-weight:700; font-size:0.9rem;">تغيير اسم المستخدم أو كلمة السر الخاصة بك كمدير رئيسي:</label>
+                            <input type="text" id="master-new-user" placeholder="اسم المستخدم الجديد (افتراضي: sly)">
+                            <input type="password" id="master-new-pass" placeholder="كلمة المرور الجديدة (افتراضي: 2982023amS)">
+                            <button class="btn btn-danger" onclick="updateMasterAdminCredentials()" style="width: 100%; margin-top: 8px;">حفظ بيانات الدخول الرئيسية الجديده 💾</button>
+                        </div>
+
+                        <h4 style="color: var(--warning); margin-bottom: 6px; font-size: 1rem;">إضافة مشرف مساعد جديد:</h4>
                         <input type="text" id="new-admin-name" placeholder="اسم المشرف المساعد (مثال: أ. أحمد)">
-                        <input type="text" id="new-admin-user" placeholder="معرف/رقم دخول المشرف (مثال: ahmed123)">
-                        <input type="password" id="new-admin-pass" placeholder="كلمة مرور المشرف المساعد">
-                        <button class="btn" onclick="addNewSubAdmin()" style="background: var(--warning); width: 100%; margin-top: 8px;">إضافة مشرف جديد ➕</button>
+                        <input type="text" id="new-admin-user" placeholder="اسم المستخدم لدخول المشرف">
+                        <input type="password" id="new-admin-pass" placeholder="كلمة مرور المشرف">
+                        <button class="btn" onclick="addNewSubAdmin()" style="background: var(--warning); width: 100%; margin-top: 8px;">إضافة مشرف مساعد ➕</button>
                         
                         <div style="margin-top: 12px; overflow-x: auto;">
                             <table id="sub-admins-table">
                                <thead>
                                    <tr>
                                        <th>اسم المشرف</th>
-                                       <th>معرف الدخول</th>
+                                       <th>اسم المستخدم</th>
                                        <th>إجراء</th>
                                    </tr>
                                </thead>
@@ -250,7 +259,7 @@
                     </div>
 
                     <div class="manage-box" style="border: 2px solid var(--secondary);">
-                        <h3 style="color: var(--secondary); margin-bottom: 8px;">⚙️ 1. إعدادات الهوية والشكل العام للمنصة (سحابياً)</h3>
+                        <h3 style="color: var(--secondary); margin-bottom: 8px;">⚙️ إعدادات الهوية والشكل العام للمنصة (سحابياً)</h3>
                         <label style="display:block; margin-top:6px; font-weight:700;">اسم المنصة الخاص:</label>
                         <input type="text" id="site-name-input" placeholder="مثال: منصة الفارس التعليمية">
                         <label style="display:block; margin-top:6px; font-weight:700;">رقم الواتساب الخاص بك:</label>
@@ -271,7 +280,7 @@
                 </div>
 
                 <div class="manage-box" style="border-color: var(--primary);">
-                    <h3 style="color: var(--primary); margin-bottom: 8px;">👥 2. إدارة الطلاب سحابياً، الأكواد، ومدد الاشتراكات (ربط بجهاز واحد)</h3>
+                    <h3 style="color: var(--primary); margin-bottom: 8px;">👥 إدارة الطلاب سحابياً، الأكواد، ومدد الاشتراكات (ربط بجهاز واحد)</h3>
                     <div style="overflow-x: auto;">
                         <table id="admin-students-table">
                             <thead>
@@ -290,7 +299,7 @@
                 </div>
 
                 <div class="manage-box">
-                    <h3 style="color: var(--primary); margin-bottom: 6px;">📁 3. إدارة الأقسام الرئيسية (سحابياً)</h3>
+                    <h3 style="color: var(--primary); margin-bottom: 6px;">📁 إدارة الأقسام الرئيسية (سحابياً)</h3>
                     <input type="text" id="new-main-cat-title" placeholder="عنوان القسم الرئيسي">
                     <button class="btn" onclick="addNewMainCategory()" style="width: 100%; margin-top: 6px;">إضافة قسم رئيسي ➕</button>
                     <div style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px;">
@@ -301,7 +310,7 @@
                 </div>
 
                 <div class="manage-box">
-                    <h3 style="color: var(--secondary); margin-bottom: 6px;">📂 4. إدارة الفرع (سحابياً)</h3>
+                    <h3 style="color: var(--secondary); margin-bottom: 6px;">📂 إدارة الفرع (سحابياً)</h3>
                     <label>اختر القسم الرئيسي:</label>
                     <select id="parent-category-select"></select>
                     <input type="text" id="new-branch-title" placeholder="عنوان الفرع الجديد" style="margin-top:4px;">
@@ -314,7 +323,7 @@
                 </div>
 
                 <div class="manage-box">
-                    <h3 style="color: var(--warning); margin-bottom: 6px;">📝 5. إدارة النماذج (سحابياً)</h3>
+                    <h3 style="color: var(--warning); margin-bottom: 6px;">📝 إدارة النماذج (سحابياً)</h3>
                     <label>اختر الفرع التابع له:</label>
                     <select id="branch-select-for-model"></select>
                     <input type="text" id="new-model-title" placeholder="عنوان النموذج (مثال: نموذج 1)" style="margin-top:4px;">
@@ -330,14 +339,14 @@
                 </div>
 
                 <div class="manage-box">
-                    <h3 style="color: var(--success); margin-bottom: 6px;">➕ 6. إضافة وحذف الأسئلة للنماذج (سحابياً للجميع)</h3>
+                    <h3 style="color: var(--success); margin-bottom: 6px;">➕ إضافة وحذف الأسئلة للنماذج (سحابياً للجميع)</h3>
                     <label>اختر النموذج:</label>
                     <select id="question-target-model-select"></select>
 
                     <label style="margin-top: 6px; display:block;">نص السؤال:</label>
                     <textarea id="new-q-text" rows="2" placeholder="اكتب نص السؤال..."></textarea>
 
-                    <label style="margin-top: 6px; display:block;">صورة السؤال (اختياري - يتم ضغطها تلقائياً لتفادي أخطاء الحجم):</label>
+                    <label style="margin-top: 6px; display:block;">صورة السؤال (اختياري - ضغط تلقائي):</label>
                     <input type="file" id="new-q-img" accept="image/*" style="background: var(--card-bg); padding: 4px;">
 
                     <label style="margin-top: 6px; display:block;">الخيارات الثابتة (أ، ب، ج، د):</label>
@@ -391,24 +400,21 @@
                         </div>
                     </div>
 
-                    <!-- سبورة الحل التفاعلية المطورة -->
+                    <!-- سبورة الحل التفاعلية مع القلم والممحاة -->
                     <div class="scratchpad-container">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                             <span style="font-weight: 800; font-size: 0.9rem; color: var(--secondary);">📝 سبورة الحل الذكية:</span>
                             <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-                                <!-- أداة الرسم (قلم / ممحاة) -->
                                 <select id="scratch-tool-select" onchange="changeScratchTool(this.value)" style="padding: 4px; font-size: 0.8rem; width: auto;">
                                     <option value="pen">✏️ قلم كتابة</option>
                                     <option value="eraser">🧹 ممحاة (مسح جزء)</option>
                                 </select>
-                                <!-- لون القلم -->
                                 <select id="pen-color-select" onchange="changePenColor(this.value)" style="padding: 4px; font-size: 0.8rem; width: auto;">
                                     <option value="#ef4444">أحمر</option>
                                     <option value="#0f172a">أسود</option>
                                     <option value="#3b82f6">أزرق</option>
                                     <option value="#10b981">أخضر</option>
                                 </select>
-                                <!-- سمك الخط -->
                                 <select id="pen-size-select" onchange="changePenSize(this.value)" style="padding: 4px; font-size: 0.8rem; width: auto;">
                                     <option value="2">رفيع</option>
                                     <option value="4" selected>متوسط</option>
@@ -438,8 +444,12 @@
     </div>
 
     <script>
+        // إعداد بيانات المدير الرئيسي الافتراضية
+        if (!localStorage.getItem('admin_user')) {
+            localStorage.setItem('admin_user', 'sly');
+        }
         if (!localStorage.getItem('admin_pass')) {
-            localStorage.setItem('admin_pass', '2982023');
+            localStorage.setItem('admin_pass', '2982023amS');
         }
 
         function getClientDeviceFingerprint() {
@@ -592,6 +602,7 @@
                     document.getElementById('super-admin-settings-panel').style.display = 'none';
                 } else {
                     document.getElementById('super-admin-settings-panel').style.display = 'block';
+                    document.getElementById('master-new-user').value = localStorage.getItem('admin_user') || 'sly';
                     loadSubAdminsTable();
                 }
                 populateAdminSelects(); 
@@ -834,22 +845,38 @@
             } catch(e) {}
         }
 
+        // تحديث بيانات المدير الرئيسي (سلي)
+        function updateMasterAdminCredentials() {
+            let newUser = document.getElementById('master-new-user').value.trim();
+            let newPass = document.getElementById('master-new-pass').value;
+
+            if(!newUser || !newPass) return alert("أدخل اسم المستخدم وكلمة المرور الجديدة!");
+            localStorage.setItem('admin_user', newUser);
+            localStorage.setItem('admin_pass', newPass);
+            alert("تم تحديث بيانات المدير الرئيسي بنجاح! اسم المستخدم الجديد: " + newUser);
+        }
+
         async function verifyAdmin() {
             let userInput = document.getElementById('admin-user-input').value.trim();
             let passInput = document.getElementById('admin-pass-input').value;
 
-            let mainPass = localStorage.getItem('admin_pass') || '2982023';
-            if ((userInput === "" || userInput === "المدير" || userInput === "admin") && passInput === mainPass) {
+            let masterUser = localStorage.getItem('admin_user') || 'sly';
+            let masterPass = localStorage.getItem('admin_pass') || '2982023amS';
+
+            // 1. التحقق إذا كان المدير الرئيسي
+            if (userInput === masterUser && passInput === masterPass) {
                 localStorage.setItem('current_admin_role', 'super');
                 document.getElementById('admin-login-box').style.display = 'none';
                 document.getElementById('admin-dashboard-box').style.display = 'block';
                 document.getElementById('super-admin-settings-panel').style.display = 'block';
+                document.getElementById('master-new-user').value = masterUser;
                 populateAdminSelects();
                 loadAdminStudentsTable();
                 loadSubAdminsTable();
                 return;
             }
 
+            // 2. التحقق من المشرفين الفرعيين
             let subAdmins = await fetchSubAdminsFromCloud();
             let foundSub = subAdmins.find(a => a.username === userInput && a.password === passInput);
             if (foundSub) {
@@ -870,9 +897,12 @@
             let username = document.getElementById('new-admin-user').value.trim();
             let password = document.getElementById('new-admin-pass').value;
 
+            let masterUser = localStorage.getItem('admin_user') || 'sly';
             if(!name || !username || !password) return alert("أدخل كافة بيانات المشرف المساعد!");
+            if(username === masterUser) return alert("لا يمكنك استخدام اسم المستخدم الرئيسي للمدير!");
+
             let subAdmins = await fetchSubAdminsFromCloud();
-            if(subAdmins.some(a => a.username === username)) return alert("معرف الدخول هذا مستخدم بالفعل، اختر اسماً آخر.");
+            if(subAdmins.some(a => a.username === username)) return alert("اسم المستخدم هذا مستخدم بالفعل، اختر اسماً آخر.");
 
             subAdmins.push({ id: 'sub_' + Date.now(), name: name, username: username, password: password });
             await saveSubAdminsToCloud(subAdmins);
@@ -888,7 +918,7 @@
             if(!tbody) return;
             let subAdmins = await fetchSubAdminsFromCloud();
             if(subAdmins.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" style="color:var(--text-muted);">لا توجد مشرفين فرعيين مضافين.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="3" style="color:var(--text-muted);">لا توجد مشرفين مساعدين مضافين.</td></tr>`;
                 return;
             }
             let html = '';
@@ -1374,9 +1404,8 @@
             renderMainCategories();
         }
 
-        // إعدادات السبورة الذكية (قلم / ممحاة / سمك / ألوان)
         let scratchCanvas, scratchCtx, isScratchPainting = false;
-        let currentScratchTool = 'pen'; // 'pen' or 'eraser'
+        let currentScratchTool = 'pen';
         let currentPenColor = '#ef4444';
         let currentPenSize = 4;
 
@@ -1421,7 +1450,7 @@
             scratchCtx.lineWidth = currentPenSize;
             scratchCtx.lineCap = 'round';
             if(currentScratchTool === 'eraser') {
-                scratchCtx.strokeStyle = '#ffffff'; // لون خلفية السبورة للمسح
+                scratchCtx.strokeStyle = '#ffffff';
             } else {
                 scratchCtx.strokeStyle = currentPenColor;
             }
