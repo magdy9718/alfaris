@@ -220,22 +220,21 @@
         <div id="admin-screen" class="screen card-box">
             <h2 style="color: var(--primary); margin-bottom: 20px;">🛠 لوحة تحكم المشرفين الشاملة</h2>
             <div id="admin-login-box">
-                <input type="text" id="admin-user-input" placeholder="اسم المستخدم (مثال: sly)">
+                <input type="text" id="admin-user-input" placeholder="اسم المستخدم">
                 <input type="password" id="admin-pass-input" placeholder="كلمة المرور الخاصة بالمشرف">
                 <button class="btn" onclick="verifyAdmin()" style="width: 100%; margin-top: 10px;">دخول المشرف 🔐</button>
             </div>
             
             <div id="admin-dashboard-box" style="display: none; text-align: right;">
                 <div id="super-admin-settings-panel">
-                    <!-- لوحة التحكم الخاصة بالمدير الرئيسي (تعديل بيانات دخوله + إضافة مشرفين) -->
                     <div class="manage-box" style="border: 2px solid var(--danger); background: rgba(239, 68, 68, 0.03);">
                         <h3 style="color: var(--danger); margin-bottom: 8px;">👑 لوحة المدير الرئيسي (صلاحيات مطلقة)</h3>
                         
                         <div style="background: var(--card-bg); padding: 12px; border-radius: 10px; margin-bottom: 12px; border: 1px solid var(--border-color);">
                             <label style="font-weight:700; font-size:0.9rem;">تغيير اسم المستخدم أو كلمة السر الخاصة بك كمدير رئيسي:</label>
-                            <input type="text" id="master-new-user" placeholder="اسم المستخدم الجديد (افتراضي: sly)">
-                            <input type="password" id="master-new-pass" placeholder="كلمة المرور الجديدة (افتراضي: 2982023amS)">
-                            <button class="btn btn-danger" onclick="updateMasterAdminCredentials()" style="width: 100%; margin-top: 8px;">حفظ بيانات الدخول الرئيسية الجديده 💾</button>
+                            <input type="text" id="master-new-user" placeholder="اسم المستخدم الجديد">
+                            <input type="password" id="master-new-pass" placeholder="كلمة المرور الجديدة">
+                            <button class="btn btn-danger" onclick="updateMasterAdminCredentials()" style="width: 100%; margin-top: 8px;">حفظ بيانات الدخول الرئيسية الجديدة 💾</button>
                         </div>
 
                         <h4 style="color: var(--warning); margin-bottom: 6px; font-size: 1rem;">إضافة مشرف مساعد جديد:</h4>
@@ -444,7 +443,7 @@
     </div>
 
     <script>
-        // إعداد بيانات المدير الرئيسي الافتراضية
+        // إعداد بيانات المدير الرئيسي (sly / 2982023amS) أول مرة فقط إذا لم تكن مسجلة
         if (!localStorage.getItem('admin_user')) {
             localStorage.setItem('admin_user', 'sly');
         }
@@ -845,7 +844,6 @@
             } catch(e) {}
         }
 
-        // تحديث بيانات المدير الرئيسي (سلي)
         function updateMasterAdminCredentials() {
             let newUser = document.getElementById('master-new-user').value.trim();
             let newPass = document.getElementById('master-new-pass').value;
@@ -863,7 +861,6 @@
             let masterUser = localStorage.getItem('admin_user') || 'sly';
             let masterPass = localStorage.getItem('admin_pass') || '2982023amS';
 
-            // 1. التحقق إذا كان المدير الرئيسي
             if (userInput === masterUser && passInput === masterPass) {
                 localStorage.setItem('current_admin_role', 'super');
                 document.getElementById('admin-login-box').style.display = 'none';
@@ -876,7 +873,6 @@
                 return;
             }
 
-            // 2. التحقق من المشرفين الفرعيين
             let subAdmins = await fetchSubAdminsFromCloud();
             let foundSub = subAdmins.find(a => a.username === userInput && a.password === passInput);
             if (foundSub) {
