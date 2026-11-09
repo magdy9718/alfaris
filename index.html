@@ -23,7 +23,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // جعل الأدوات متاحة عالمياً داخل الكود
         window.FB_DB = db;
         window.FB_COLLECTION = collection;
         window.FB_GETDOCS = getDocs;
@@ -133,7 +132,7 @@
         .question-img { width: 100%; max-height: 320px; object-fit: contain; display: block; margin: 12px auto; border-radius: 10px; }
 
         .scratchpad-container { background: var(--card-bg); border: 2px dashed var(--secondary); border-radius: 16px; padding: 15px; margin-bottom: 20px; text-align: right; }
-        .scratchpad-canvas-wrap { position: relative; width: 100%; height: 220px; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; margin-top: 8px; }
+        .scratchpad-canvas-wrap { position: relative; width: 100%; height: 240px; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; margin-top: 8px; }
         #scratchpad-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
 
         .options-list { list-style: none; margin: 20px 0; }
@@ -199,7 +198,7 @@
         <div id="student-auth-screen" class="screen card-box" style="max-width: 500px; margin: 30px auto;">
             <div class="logo-badge" id="auth-logo-badge">🎓</div>
             <h2 style="color: var(--primary); margin-bottom: 10px;">سجل بياناتك في المنصة</h2>
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">أدخل اسمك ورقم جوالك للاشتراك وحفظ نتائجك</p>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">أدخل اسمك ورقم جوالك للاشتراك وحفظ نتائجك (يُقفل الحساب على هذا الجهاز حصرياً)</p>
             
             <input type="text" id="reg-student-name" placeholder="الاسم الثلاثي الكامل">
             <input type="text" id="reg-student-phone" placeholder="رقم الجوال (مثال: 0507927427)">
@@ -219,41 +218,67 @@
         </div>
 
         <div id="admin-screen" class="screen card-box">
-            <h2 style="color: var(--primary); margin-bottom: 20px;">🛠 لوحة تحكم المشرف الشاملة</h2>
+            <h2 style="color: var(--primary); margin-bottom: 20px;">🛠 لوحة تحكم المشرفين الشاملة</h2>
             <div id="admin-login-box">
-                <input type="password" id="admin-pass-input" placeholder="أدخل كلمة مرور المشرف السرية">
+                <input type="text" id="admin-user-input" placeholder="اسم المستخدم أو رقم المشرف (اتركه فارغاً أو اكتب اسمك إذا كنت المدير الرئيسي)">
+                <input type="password" id="admin-pass-input" placeholder="كلمة المرور الخاصة بالمشرف">
                 <button class="btn" onclick="verifyAdmin()" style="width: 100%; margin-top: 10px;">دخول المشرف 🔐</button>
             </div>
             
             <div id="admin-dashboard-box" style="display: none; text-align: right;">
-                <div class="manage-box" style="border: 2px solid var(--secondary);">
-                    <h3 style="color: var(--secondary); margin-bottom: 8px;">⚙️ 1. إعدادات الهوية والشكل العام للمنصة (سحابياً)</h3>
-                    <label style="display:block; margin-top:6px; font-weight:700;">اسم المنصة الخاص:</label>
-                    <input type="text" id="site-name-input" placeholder="مثال: منصة الفارس التعليمية">
-                    <label style="display:block; margin-top:6px; font-weight:700;">رقم الواتساب الخاص بك:</label>
-                    <input type="text" id="site-whatsapp-input" placeholder="مثال: 966507927427">
-                    <label style="display:block; margin-top:8px; font-weight:700;">شعار المنصة:</label>
-                    <input type="file" id="site-logo-input" accept="image/*" style="background: var(--card-bg); padding: 4px;">
-                    <label style="display:block; margin-top:8px; font-weight:700;">لون المظهر الرئيسي:</label>
-                    <select id="site-theme-color-select">
-                        <option value="#4f46e5">بنفسجي كلاسيكي (الافتراضي)</option>
-                        <option value="#2563eb">أزرق ملكي</option>
-                        <option value="#059669">أخضر زمردي</option>
-                        <option value="#dc2626">أحمر ياقوتي</option>
-                        <option value="#d97706">برتقالي ذهبي</option>
-                        <option value="#7c3aed">بنفسجي داكن</option>
-                    </select>
-                    <button class="btn" onclick="saveSiteSettings()" style="background: var(--secondary); width: 100%; margin-top: 12px;">حفظ إعدادات المنصة في السحابة 💾</button>
+                <div id="super-admin-settings-panel">
+                    <div class="manage-box" style="border: 2px solid var(--warning); background: rgba(245, 158, 11, 0.03);">
+                        <h3 style="color: var(--warning); margin-bottom: 8px;">👑 إدارة المشرفين الفرعيين (خاص بالمدير الرئيسي فقط)</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">أضف مشرفاً مساعداً معك بصلاحيات إدارة كاملة ولا يستطيع حذف حسابك:</p>
+                        <input type="text" id="new-admin-name" placeholder="اسم المشرف المساعد (مثال: أ. أحمد)">
+                        <input type="text" id="new-admin-user" placeholder="معرف/رقم دخول المشرف (مثال: ahmed123)">
+                        <input type="password" id="new-admin-pass" placeholder="كلمة مرور المشرف المساعد">
+                        <button class="btn" onclick="addNewSubAdmin()" style="background: var(--warning); width: 100%; margin-top: 8px;">إضافة مشرف جديد ➕</button>
+                        
+                        <div style="margin-top: 12px; overflow-x: auto;">
+                            <table id="sub-admins-table">
+                               <thead>
+                                   <tr>
+                                       <th>اسم المشرف</th>
+                                       <th>معرف الدخول</th>
+                                       <th>إجراء</th>
+                                   </tr>
+                               </thead>
+                               <tbody id="sub-admins-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="manage-box" style="border: 2px solid var(--secondary);">
+                        <h3 style="color: var(--secondary); margin-bottom: 8px;">⚙️ 1. إعدادات الهوية والشكل العام للمنصة (سحابياً)</h3>
+                        <label style="display:block; margin-top:6px; font-weight:700;">اسم المنصة الخاص:</label>
+                        <input type="text" id="site-name-input" placeholder="مثال: منصة الفارس التعليمية">
+                        <label style="display:block; margin-top:6px; font-weight:700;">رقم الواتساب الخاص بك:</label>
+                        <input type="text" id="site-whatsapp-input" placeholder="مثال: 966507927427">
+                        <label style="display:block; margin-top:8px; font-weight:700;">شعار المنصة:</label>
+                        <input type="file" id="site-logo-input" accept="image/*" style="background: var(--card-bg); padding: 4px;">
+                        <label style="display:block; margin-top:8px; font-weight:700;">لون المظهر الرئيسي:</label>
+                        <select id="site-theme-color-select">
+                            <option value="#4f46e5">بنفسجي كلاسيكي (الافتراضي)</option>
+                            <option value="#2563eb">أزرق ملكي</option>
+                            <option value="#059669">أخضر زمردي</option>
+                            <option value="#dc2626">أحمر ياقوتي</option>
+                            <option value="#d97706">برتقالي ذهبي</option>
+                            <option value="#7c3aed">بنفسجي داكن</option>
+                        </select>
+                        <button class="btn" onclick="saveSiteSettings()" style="background: var(--secondary); width: 100%; margin-top: 12px;">حفظ إعدادات المنصة في السحابة 💾</button>
+                    </div>
                 </div>
 
                 <div class="manage-box" style="border-color: var(--primary);">
-                    <h3 style="color: var(--primary); margin-bottom: 8px;">👥 2. إدارة الطلاب سحابياً، الأكواد، ومدد الاشتراكات</h3>
+                    <h3 style="color: var(--primary); margin-bottom: 8px;">👥 2. إدارة الطلاب سحابياً، الأكواد، ومدد الاشتراكات (ربط بجهاز واحد)</h3>
                     <div style="overflow-x: auto;">
                         <table id="admin-students-table">
                             <thead>
                                 <tr>
                                     <th>اسم الطالب</th>
                                     <th>رقم الجوال</th>
+                                    <th>حالة الجهاز والأمان</th>
                                     <th>الحالة، الكود والمدة</th>
                                     <th>الدرجات والنتائج</th>
                                     <th>إدارة الحساب والتفعيل</th>
@@ -276,7 +301,7 @@
                 </div>
 
                 <div class="manage-box">
-                    <h3 style="color: var(--secondary); margin-bottom: 6px;">📂 4. إدارة الفروع (سحابياً)</h3>
+                    <h3 style="color: var(--secondary); margin-bottom: 6px;">📂 4. إدارة الفرع (سحابياً)</h3>
                     <label>اختر القسم الرئيسي:</label>
                     <select id="parent-category-select"></select>
                     <input type="text" id="new-branch-title" placeholder="عنوان الفرع الجديد" style="margin-top:4px;">
@@ -366,17 +391,31 @@
                         </div>
                     </div>
 
+                    <!-- سبورة الحل التفاعلية المطورة -->
                     <div class="scratchpad-container">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: 800; font-size: 0.9rem; color: var(--secondary);">📝 مساحة الحل والعمليات الحسابية:</span>
-                            <div style="display: flex; gap: 6px; align-items: center;">
-                                <select id="pen-color-select" onchange="changePenColor(this.value)" style="padding: 3px; font-size: 0.8rem; width: auto;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <span style="font-weight: 800; font-size: 0.9rem; color: var(--secondary);">📝 سبورة الحل الذكية:</span>
+                            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                                <!-- أداة الرسم (قلم / ممحاة) -->
+                                <select id="scratch-tool-select" onchange="changeScratchTool(this.value)" style="padding: 4px; font-size: 0.8rem; width: auto;">
+                                    <option value="pen">✏️ قلم كتابة</option>
+                                    <option value="eraser">🧹 ممحاة (مسح جزء)</option>
+                                </select>
+                                <!-- لون القلم -->
+                                <select id="pen-color-select" onchange="changePenColor(this.value)" style="padding: 4px; font-size: 0.8rem; width: auto;">
                                     <option value="#ef4444">أحمر</option>
                                     <option value="#0f172a">أسود</option>
                                     <option value="#3b82f6">أزرق</option>
                                     <option value="#10b981">أخضر</option>
                                 </select>
-                                <button class="btn btn-danger" onclick="clearScratchpad()" style="padding: 4px 10px; font-size: 0.75rem;">🧹 مسح اللوحة</button>
+                                <!-- سمك الخط -->
+                                <select id="pen-size-select" onchange="changePenSize(this.value)" style="padding: 4px; font-size: 0.8rem; width: auto;">
+                                    <option value="2">رفيع</option>
+                                    <option value="4" selected>متوسط</option>
+                                    <option value="8">عريض</option>
+                                    <option value="16">سميك جداً</option>
+                                </select>
+                                <button class="btn btn-danger" onclick="clearScratchpad()" style="padding: 4px 10px; font-size: 0.75rem;">🗑️ مسح الكل</button>
                             </div>
                         </div>
                         <div class="scratchpad-canvas-wrap" id="scratchpad-wrap">
@@ -401,6 +440,15 @@
     <script>
         if (!localStorage.getItem('admin_pass')) {
             localStorage.setItem('admin_pass', '2982023');
+        }
+
+        function getClientDeviceFingerprint() {
+            let fp = localStorage.getItem('device_fingerprint');
+            if (!fp) {
+                fp = 'dev_' + Math.random().toString(36.2) + Date.now().toString(36);
+                localStorage.setItem('device_fingerprint', fp);
+            }
+            return fp;
         }
 
         const defaultCategoriesData = [
@@ -538,7 +586,17 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
             if(screenId === 'main-app') { renderMainCategories(); }
-            if(screenId === 'admin-screen') { populateAdminSelects(); loadAdminStudentsTable(); }
+            if(screenId === 'admin-screen') { 
+                let currentRole = localStorage.getItem('current_admin_role');
+                if(currentRole === 'sub') {
+                    document.getElementById('super-admin-settings-panel').style.display = 'none';
+                } else {
+                    document.getElementById('super-admin-settings-panel').style.display = 'block';
+                    loadSubAdminsTable();
+                }
+                populateAdminSelects(); 
+                loadAdminStudentsTable(); 
+            }
             updateAuthNavBox();
         }
 
@@ -643,6 +701,19 @@
             let students = await fetchStudentsFromCloud();
             let student = students.find(s => s.phone === session.phone);
 
+            if (student) {
+                let myDevice = getClientDeviceFingerprint();
+                if (student.deviceId && student.deviceId !== myDevice) {
+                    alert("⚠️ عذراً، هذا الحساب مسجل ومقفل على جهاز آخر ولا يمكن فتحه من جهاز متعدد!");
+                    logoutStudent();
+                    return;
+                }
+                if (!student.deviceId) {
+                    student.deviceId = myDevice;
+                    await saveStudentToCloud(student);
+                }
+            }
+
             if(student && checkStudentSubscription(student)) {
                 localStorage.setItem('current_student_session', JSON.stringify(student));
                 startQuiz(modelId, fullTitle);
@@ -660,10 +731,27 @@
 
             let students = await fetchStudentsFromCloud();
             let existing = students.find(s => s.phone === phone);
+            let myDevice = getClientDeviceFingerprint();
             
-            if (!existing) {
+            if (existing) {
+                if (existing.deviceId && existing.deviceId !== myDevice) {
+                    alert("⚠️ هذا الرقم مسجل مسبقاً على جهاز آخر! لا يمكن الدخول من جهاز متعدد.");
+                    return;
+                }
+                existing.deviceId = myDevice;
+            } else {
                 let uniqueCode = 'FARIS-' + Math.floor(1000 + Math.random() * 9000);
-                existing = { name: name, phone: phone, active: false, code: uniqueCode, duration: 'شهر واحد', durationDays: 30, expiryDate: null, grades: [] };
+                existing = { 
+                    name: name, 
+                    phone: phone, 
+                    active: false, 
+                    code: uniqueCode, 
+                    duration: 'شهر واحد', 
+                    durationDays: 30, 
+                    expiryDate: null, 
+                    deviceId: myDevice, 
+                    grades: [] 
+                };
             }
 
             await saveStudentToCloud(existing);
@@ -697,9 +785,10 @@
                 s.active = true;
                 let days = s.durationDays || 30;
                 s.expiryDate = new Date().getTime() + (days * 24 * 60 * 60 * 1000);
+                s.deviceId = getClientDeviceFingerprint();
                 await saveStudentToCloud(s);
                 localStorage.setItem('current_student_session', JSON.stringify(s));
-                alert("تم تفعيل حسابك بنجاح!");
+                alert("تم تفعيل حسابك بنجاح على هذا الجهاز!");
                 updateAuthNavBox();
                 if(pendingQuizModelId) startQuiz(pendingQuizModelId, pendingQuizModelTitle);
                 else switchScreen('main-app');
@@ -731,13 +820,94 @@
             try { await window.FB_DELETEDOC(window.FB_DOC(window.FB_DB, "students", phone)); } catch (e) {}
         }
 
-        function verifyAdmin() {
-            if (document.getElementById('admin-pass-input').value === localStorage.getItem('admin_pass')) {
+        async function fetchSubAdminsFromCloud() {
+            try {
+                let docSnap = await window.FB_GETDOC(window.FB_DOC(window.FB_DB, "platform_data", "sub_admins"));
+                if (docSnap.exists()) { return docSnap.data().list || []; }
+            } catch(e) {}
+            return [];
+        }
+
+        async function saveSubAdminsToCloud(adminsList) {
+            try {
+                await window.FB_SETDOC(window.FB_DOC(window.FB_DB, "platform_data", "sub_admins"), { list: adminsList });
+            } catch(e) {}
+        }
+
+        async function verifyAdmin() {
+            let userInput = document.getElementById('admin-user-input').value.trim();
+            let passInput = document.getElementById('admin-pass-input').value;
+
+            let mainPass = localStorage.getItem('admin_pass') || '2982023';
+            if ((userInput === "" || userInput === "المدير" || userInput === "admin") && passInput === mainPass) {
+                localStorage.setItem('current_admin_role', 'super');
                 document.getElementById('admin-login-box').style.display = 'none';
                 document.getElementById('admin-dashboard-box').style.display = 'block';
+                document.getElementById('super-admin-settings-panel').style.display = 'block';
                 populateAdminSelects();
                 loadAdminStudentsTable();
-            } else { alert("كلمة المرور خاطئة!"); }
+                loadSubAdminsTable();
+                return;
+            }
+
+            let subAdmins = await fetchSubAdminsFromCloud();
+            let foundSub = subAdmins.find(a => a.username === userInput && a.password === passInput);
+            if (foundSub) {
+                localStorage.setItem('current_admin_role', 'sub');
+                document.getElementById('admin-login-box').style.display = 'none';
+                document.getElementById('admin-dashboard-box').style.display = 'block';
+                document.getElementById('super-admin-settings-panel').style.display = 'none';
+                populateAdminSelects();
+                loadAdminStudentsTable();
+                return;
+            }
+
+            alert("بيانات دخول المشرف غير صحيحة!");
+        }
+
+        async function addNewSubAdmin() {
+            let name = document.getElementById('new-admin-name').value.trim();
+            let username = document.getElementById('new-admin-user').value.trim();
+            let password = document.getElementById('new-admin-pass').value;
+
+            if(!name || !username || !password) return alert("أدخل كافة بيانات المشرف المساعد!");
+            let subAdmins = await fetchSubAdminsFromCloud();
+            if(subAdmins.some(a => a.username === username)) return alert("معرف الدخول هذا مستخدم بالفعل، اختر اسماً آخر.");
+
+            subAdmins.push({ id: 'sub_' + Date.now(), name: name, username: username, password: password });
+            await saveSubAdminsToCloud(subAdmins);
+            alert("تم إضافة المشرف المساعد بنجاح!");
+            document.getElementById('new-admin-name').value = '';
+            document.getElementById('new-admin-user').value = '';
+            document.getElementById('new-admin-pass').value = '';
+            loadSubAdminsTable();
+        }
+
+        async function loadSubAdminsTable() {
+            let tbody = document.getElementById('sub-admins-tbody');
+            if(!tbody) return;
+            let subAdmins = await fetchSubAdminsFromCloud();
+            if(subAdmins.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="color:var(--text-muted);">لا توجد مشرفين فرعيين مضافين.</td></tr>`;
+                return;
+            }
+            let html = '';
+            subAdmins.forEach((adm, idx) => {
+                html += `<tr>
+                    <td>${adm.name}</td>
+                    <td><code>${adm.username}</code></td>
+                    <td><button class="btn btn-danger" style="padding:2px 8px; font-size:0.75rem;" onclick="deleteSubAdmin(${idx})">حذف 🗑️</button></td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        async function deleteSubAdmin(idx) {
+            if(!confirm("حذف هذا المشرف؟")) return;
+            let subAdmins = await fetchSubAdminsFromCloud();
+            subAdmins.splice(idx, 1);
+            await saveSubAdminsToCloud(subAdmins);
+            loadSubAdminsTable();
         }
 
         async function loadAdminStudentsTable() {
@@ -745,7 +915,7 @@
             let tbody = document.getElementById('students-table-body');
             if(!tbody) return;
             if(students.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="color:var(--text-muted);">لا توجد طلاب مسجلين حتى الآن.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted);">لا توجد طلاب مسجلين حتى الآن.</td></tr>`;
                 return;
             }
 
@@ -755,6 +925,8 @@
                 if(!s.duration) s.duration = 'شهر واحد';
 
                 let isStillActive = checkStudentSubscription(s);
+                let deviceBadge = s.deviceId ? `<span style="color:var(--success); font-size:0.75rem;">جهاز مقفل 📱</span><br><button class="btn" style="padding:2px 6px; font-size:0.7rem; margin-top:4px; background:var(--secondary);" onclick="resetStudentDevice('${s.phone}')">فك قفل الجهاز 🔓</button>` : `<span style="color:var(--text-muted); font-size:0.75rem;">لم يسجل الدخول بعد</span>`;
+
                 let statusBadge = isStillActive ? 
                     `<span style="color:var(--success); font-weight:800;">نشط ✅</span><br><small>الكود: <strong>${s.code}</strong></small><br><small style="color:var(--primary);">المدة: ${s.duration}</small>` : 
                     `<span style="color:var(--warning); font-weight:800;">معلق أو منتهي ⏳</span><br><small>الكود: <strong>${s.code}</strong></small>`;
@@ -774,6 +946,7 @@
                 html += `<tr>
                     <td>${s.name}</td>
                     <td>${s.phone}</td>
+                    <td>${deviceBadge}</td>
                     <td>
                         ${statusBadge}
                         <div style="margin-top:6px;">
@@ -793,6 +966,18 @@
                 </tr>`;
             });
             tbody.innerHTML = html;
+        }
+
+        async function resetStudentDevice(phone) {
+            if(!confirm("هل تريد إزالة قفل الجهاز لهذا الطالب ليتمكن من الدخول من جهاز جديد؟")) return;
+            let students = await fetchStudentsFromCloud();
+            let s = students.find(x => x.phone === phone);
+            if(s) {
+                s.deviceId = null;
+                await saveStudentToCloud(s);
+                loadAdminStudentsTable();
+                alert("تم فك قفل الجهاز بنجاح!");
+            }
         }
 
         async function changeStudentDuration(phone, durationStr) {
@@ -983,7 +1168,6 @@
             if(manageSelect) { manageSelect.innerHTML = modelOpts; loadQuestionsForManagement(); }
         }
 
-        // دالة ضغط الصورة تلقائياً لتقليل حجمها قبل الرفع لتفادي خطأ الحجم
         function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.7) {
             return new Promise((resolve) => {
                 let reader = new FileReader();
@@ -1028,7 +1212,6 @@
                 let imgData = "";
 
                 if (imgInput.files && imgInput.files[0]) {
-                    // ضغط الصورة تلقائياً لتفادي تجاوز الحد المسموح به في فايربيس
                     imgData = await compressImage(imgInput.files[0]);
                 }
 
@@ -1053,7 +1236,6 @@
                 document.getElementById('new-q-img').value = '';
                 loadQuestionsForManagement();
             } catch(e) {
-                console.error("خطأ الحفظ:", e);
                 alert("حدث خطأ أثناء الحفظ بالسحابة: " + e.message);
             }
         }
@@ -1192,8 +1374,11 @@
             renderMainCategories();
         }
 
+        // إعدادات السبورة الذكية (قلم / ممحاة / سمك / ألوان)
         let scratchCanvas, scratchCtx, isScratchPainting = false;
+        let currentScratchTool = 'pen'; // 'pen' or 'eraser'
         let currentPenColor = '#ef4444';
+        let currentPenSize = 4;
 
         function initScratchpad() {
             scratchCanvas = document.getElementById('scratchpad-canvas');
@@ -1201,8 +1386,9 @@
             scratchCtx = scratchCanvas.getContext('2d');
             let wrap = document.getElementById('scratchpad-wrap');
             scratchCanvas.width = wrap.clientWidth;
-            scratchCanvas.height = wrap.clientHeight || 200;
-            scratchCtx.strokeStyle = currentPenColor; scratchCtx.lineWidth = 3; scratchCtx.lineCap = 'round';
+            scratchCanvas.height = wrap.clientHeight || 240;
+            
+            updateScratchSettings();
             
             scratchCanvas.onmousedown = (e) => { isScratchPainting = true; drawScratch(e); };
             scratchCanvas.onmouseup = () => { isScratchPainting = false; scratchCtx.beginPath(); };
@@ -1213,14 +1399,48 @@
             scratchCanvas.ontouchmove = (e) => { drawScratch(e.touches[0]); e.preventDefault(); };
         }
 
-        function changePenColor(color) { currentPenColor = color; if(scratchCtx) scratchCtx.strokeStyle = color; }
+        function changeScratchTool(tool) {
+            currentScratchTool = tool;
+            updateScratchSettings();
+        }
+
+        function changePenColor(color) {
+            currentPenColor = color;
+            if(currentScratchTool === 'pen') {
+                scratchCtx.strokeStyle = color;
+            }
+        }
+
+        function changePenSize(size) {
+            currentPenSize = parseInt(size);
+            scratchCtx.lineWidth = currentPenSize;
+        }
+
+        function updateScratchSettings() {
+            if(!scratchCtx) return;
+            scratchCtx.lineWidth = currentPenSize;
+            scratchCtx.lineCap = 'round';
+            if(currentScratchTool === 'eraser') {
+                scratchCtx.strokeStyle = '#ffffff'; // لون خلفية السبورة للمسح
+            } else {
+                scratchCtx.strokeStyle = currentPenColor;
+            }
+        }
+
         function drawScratch(e) {
             if (!isScratchPainting) return;
             let rect = scratchCanvas.getBoundingClientRect();
             scratchCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-            scratchCtx.stroke(); scratchCtx.beginPath(); scratchCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+            scratchCtx.stroke(); 
+            scratchCtx.beginPath(); 
+            scratchCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
         }
-        function clearScratchpad() { if(scratchCtx && scratchCanvas) scratchCtx.clearRect(0, 0, scratchCanvas.width, scratchCanvas.height); }
+
+        function clearScratchpad() { 
+            if(scratchCtx && scratchCanvas) {
+                scratchCtx.clearRect(0, 0, scratchCanvas.width, scratchCanvas.height);
+            } 
+        }
 
         let isQuestionZoomed = false;
         function toggleQuestionZoom() {
