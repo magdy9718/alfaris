@@ -84,7 +84,6 @@
         header h1 { font-size: 2.3rem; font-weight: 900; }
         header p { opacity: 0.95; margin-top: 6px; font-weight: 600; font-size: 1.05rem; }
 
-        /* شريط الإعلانات التفاعلي */
         .announcement-banner {
             background: linear-gradient(135deg, #f59e0b, #d97706);
             color: white; padding: 16px 20px; border-radius: 18px; margin-bottom: 20px;
@@ -173,7 +172,6 @@
                 <p>في القدرات والتحصيلي</p>
             </header>
 
-            <!-- شريط الإعلانات الفوري -->
             <div id="student-announcement-banner" class="announcement-banner"></div>
 
             <div class="subscription-info">✨ تصفح الأقسام والنماذج وملفات الـ PDF المتاحة بحرية واسترخاء:</div>
@@ -187,7 +185,6 @@
             </div>
         </div>
 
-        <!-- شاشة عرض الفروع أو محتوى الـ PDF -->
         <div id="branches-screen" class="screen card-box">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h2 id="branches-title" style="color: var(--primary);"></h2>
@@ -210,7 +207,7 @@
         <div id="student-auth-screen" class="screen card-box" style="max-width: 500px; margin: 30px auto;">
             <div class="logo-badge" id="auth-logo-badge">🎓</div>
             <h2 style="color: var(--primary); margin-bottom: 10px;">سجل بياناتك في المنصة</h2>
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">أدخل اسمك ورقم جوالك للااشتراك وحفظ نتائجك (يُقفل الحساب على هذا الجهاز حصرياً)</p>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">أدخل اسمك ورقم جوالك للاشتراك وحفظ نتائجك (يُقفل الحساب على هذا الجهاز حصرياً)</p>
             
             <input type="text" id="reg-student-name" placeholder="الاسم الثلاثي الكامل">
             <input type="text" id="reg-student-phone" placeholder="رقم الجوال (مثال: 0507927427)">
@@ -290,7 +287,6 @@
                     </div>
                 </div>
 
-                <!-- قسم الإعلانات الفورية للطلاب -->
                 <div class="manage-box" style="border: 2px solid var(--warning);">
                     <h3 style="color: var(--warning); margin-bottom: 8px;">📢 إدارة الإعلانات الفورية للطلاب (سحابياً)</h3>
                     <label style="font-weight:700;">نص الإعلان الذي يظهر للطلاب (اتركه فارغاً لإخفاء الإعلان):</label>
@@ -298,7 +294,6 @@
                     <button class="btn" onclick="saveAnnouncementToCloud()" style="background: var(--warning); width: 100%; margin-top: 8px;">نشر الإعلان فوراً للطلاب 🚀</button>
                 </div>
 
-                <!-- إدارة ونقل وتعديل الأقسام -->
                 <div class="manage-box">
                     <h3 style="color: var(--primary); margin-bottom: 6px;">📁 إدارة وتعديل الأقسام (تعديل، تحويل رئيسي/فرعي)</h3>
                     <input type="text" id="new-main-cat-title" placeholder="عنوان القسم الرئيسي الجديد">
@@ -318,7 +313,6 @@
                     </div>
                 </div>
 
-                <!-- إدارة الفروع (وتحويلها أو تعديلها) -->
                 <div class="manage-box">
                     <h3 style="color: var(--secondary); margin-bottom: 6px;">📂 إدارة وفروع الأقسام (تحويل بين رئيسي وفرعي)</h3>
                     <label>اختر القسم الرئيسي التابع له:</label>
@@ -339,7 +333,6 @@
                     </div>
                 </div>
 
-                <!-- قسم رفع ملفات الـ PDF -->
                 <div class="manage-box" style="border: 2px solid var(--success);">
                     <h3 style="color: var(--success); margin-bottom: 6px;">📚 إضافة ملفات PDF تعليمية (سحابياً)</h3>
                     <label>اختر القسم الرئيسي الذي ترغب في رفع ملف الـ PDF داخله:</label>
@@ -374,7 +367,7 @@
                     <label style="margin-top: 6px; display:block;">نص السؤال:</label>
                     <textarea id="new-q-text" rows="2" placeholder="اكتب نص السؤال..."></textarea>
 
-                    <label style="margin-top: 6px; display:block;">صورة السؤال (اختياري - ضغط تلقائي):</label>
+                    <label style="margin-top: 6px; display:block;">صورة السؤال (اختياري - ضغط تلقائي ذكي):</label>
                     <input type="file" id="new-q-img" accept="image/*" style="background: var(--card-bg); padding: 4px;">
 
                     <label style="margin-top: 6px; display:block;">الخيارات الثابتة (أ، ب، ج، د):</label>
@@ -448,7 +441,6 @@
                         </div>
                     </div>
 
-                    <!-- سبورة الحل الذكية -->
                     <div class="scratchpad-container">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                             <span style="font-weight: 800; font-size: 0.9rem; color: var(--secondary);">📝 سبورة الحل الذكية:</span>
@@ -633,7 +625,7 @@
             existingSettings.announcement = text;
             try {
                 await window.FB_SETDOC(window.FB_DOC(window.FB_DB, "platform_data", "settings"), existingSettings);
-                alert("تم نشر الإعلان بنجاح ليظهر لجميع الطلاب فوراً!");
+                alert("تم نشر الإعلان بنجاح ليظهر للطلاب فوراً!");
                 checkAndRenderAnnouncement();
             } catch(e) {
                 alert("حدث خطأ أثناء نشر الإعلان.");
@@ -744,7 +736,6 @@
             pdfViewer.innerHTML = '';
 
             let html = '';
-            // عرض الفروع العادية
             if(cat.branches && cat.branches.length > 0) {
                 cat.branches.forEach(branch => {
                     html += `<div class="nav-card" onclick="openModels('${cat.id}', '${branch.id}')">
@@ -754,7 +745,6 @@
                 });
             }
 
-            // عرض ملفات الـ PDF المرفوعة في هذا القسم الرئيسي
             if(cat.pdfs && cat.pdfs.length > 0) {
                 cat.pdfs.forEach((pdfObj, pdfIdx) => {
                     html += `<div class="nav-card" onclick="viewPdfFile('${cat.id}', ${pdfIdx})" style="border-color: var(--success); background: rgba(16, 185, 129, 0.03);">
@@ -1058,7 +1048,6 @@
             loadSubAdminsTable();
         }
 
-        // إدارة وتعديل الأقسام وتحويلها بين رئيسي وفرعي
         async function addNewMainCategory() {
             let title = document.getElementById('new-main-cat-title').value.trim();
             if(!title) return alert("أدخل عنوان القسم الرئيسي!");
@@ -1111,7 +1100,6 @@
             populateAdminSelects(); renderMainCategories();
         }
 
-        // تحويل فرع إلى قسم رئيسي مستقل والعكس
         async function convertBranchToMainCategory() {
             let branchId = document.getElementById('convert-branch-select').value;
             if(!branchId) return alert("اختر الفرع المراد تحويله!");
@@ -1132,14 +1120,12 @@
             if(!targetBranch) return alert("الفرع غير موجود!");
             if(!confirm(`هل تريد تحويل الفرع "${targetBranch.name}" ليصبح قسماً رئيسياً مستقلاً؟`)) return;
 
-            // إزالة الفرع من مكانه القديم
             cats.forEach(c => {
                 if(c.branches) {
                     c.branches = c.branches.filter(b => b.id !== branchId);
                 }
             });
 
-            // إضافته كقسم رئيسي جديد
             cats.push({
                 id: 'cat_' + Date.now(),
                 title: `${parentCatTitle} ➔ ${targetBranch.name}`,
@@ -1213,7 +1199,6 @@
             populateAdminSelects(); renderMainCategories();
         }
 
-        // رفع ملف الـ PDF إلى القسم الرئيسي سحابياً
         async function uploadPdfToCloud() {
             let catId = document.getElementById('pdf-target-branch-select').value;
             let title = document.getElementById('new-pdf-title').value.trim();
@@ -1292,7 +1277,8 @@
             if(manageSelect) { manageSelect.innerHTML = modelOpts; loadQuestionsForManagement(); }
         }
 
-        function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.7) {
+        // دالة الضغط والتقليص المحسنة لضمان عدم تجاوز حجم مستند فايرستور (أقل من 1 ميجابايت)
+        function compressImage(file, maxWidth = 600, maxHeight = 600, quality = 0.5) {
             return new Promise((resolve) => {
                 let reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -1345,6 +1331,13 @@
                     opts: [opt0||"أ", opt1||"ب", opt2||"ج", opt3||"د"], 
                     correct: correctIdx 
                 });
+
+                // التحقق من الحجم التقديري قبل الإرسال للسحابة
+                let payloadString = JSON.stringify(currentQuestions);
+                if(payloadString.length > 950000) {
+                    alert("⚠️ تحذير: هذا النموذج اقترب من الحد الأقصى للسعة (1 ميجابايت). يُفضل إنشاء نموذج جديد وإضافة الأسئلة إليه.");
+                    return;
+                }
 
                 await window.FB_SETDOC(window.FB_DOC(window.FB_DB, "quiz_questions", targetKey), {
                     questions: currentQuestions
@@ -1685,7 +1678,7 @@
         }
 
         async function deleteStudentGrade(phone, gIdx) {
-            if(!confirm("حذف درجة هذا الاختبار للطالب؟")) return;
+            if(!confirm("حذف درجة هذا الاختبار للط الطالب؟")) return;
             let students = await fetchStudentsFromCloud();
             let s = students.find(x => x.phone === phone);
             if(s && s.grades) {
