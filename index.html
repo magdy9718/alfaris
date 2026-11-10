@@ -146,6 +146,14 @@
         .options-list li:hover { border-color: var(--primary); }
         .options-list li.selected { background: var(--primary) !important; color: white !important; border-color: var(--primary) !important; }
         
+        .review-q-card { background: var(--bg-color); border: 2px solid var(--border-color); border-radius: 16px; padding: 18px; margin-bottom: 16px; text-align: right; }
+        .review-q-card.correct-card { border-color: var(--success); background: rgba(16, 185, 129, 0.03); }
+        .review-q-card.wrong-card { border-color: var(--danger); background: rgba(239, 68, 68, 0.03); }
+        .review-opt { padding: 10px 14px; border-radius: 10px; margin-top: 6px; font-weight: 700; font-size: 0.95rem; border: 1px solid var(--border-color); background: var(--card-bg); }
+        .review-opt.user-correct { background: rgba(16, 185, 129, 0.15); border-color: var(--success); color: var(--success); }
+        .review-opt.user-wrong { background: rgba(239, 68, 68, 0.15); border-color: var(--danger); color: var(--danger); }
+        .review-opt.actual-correct { background: rgba(16, 185, 129, 0.15); border-color: var(--success); color: var(--success); }
+
         .timer-box { font-size: 1.2rem; color: var(--danger); font-weight: 900; background: rgba(239, 68, 68, 0.1); padding: 6px 16px; border-radius: 50px; }
         .subscription-info { background: rgba(79, 70, 229, 0.08); color: var(--primary); padding: 14px; border-radius: 16px; margin-bottom: 25px; font-weight: 800; text-align: center; border: 1px solid rgba(79, 70, 229, 0.2); }
         .manage-box { background: var(--bg-color); padding: 15px; border-radius: 14px; margin-bottom: 12px; border: 1px solid var(--border-color); text-align: right; }
@@ -400,7 +408,7 @@
                                 <tr>
                                     <th>اسم الطالب</th>
                                     <th>رقم الجوال</th>
-                                    <th>حالة الجهاز والأمان</th>
+                                    <th>حالة الجهاز والمحاولات (أقصى 3)</th>
                                     <th>الحالة، الكود والمدة</th>
                                     <th>الدرجات والنتائج</th>
                                     <th>إدارة الحساب والتفعيل</th>
@@ -481,6 +489,21 @@
                 </div>
             </div>
         </div>
+
+        <div id="results-screen" class="screen card-box">
+            <h2 style="color: var(--primary); margin-bottom: 10px;">🎉 نتيجة الاختبار والمراجعة</h2>
+            <div id="results-score-badge" style="font-size: 1.8rem; font-weight: 900; color: var(--primary); margin-bottom: 20px; background: rgba(79, 70, 229, 0.08); padding: 15px; border-radius: 18px; border: 2px solid var(--primary);"></div>
+            
+            <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 25px; flex-wrap: wrap;">
+                <button class="btn" id="filter-all-btn" onclick="filterReviewQuestions('all')" style="background: var(--primary);">عرض جميع الأسئلة 📋</button>
+                <button class="btn" id="filter-wrong-btn" onclick="filterReviewQuestions('wrong')" style="background: #64748b;">عرض الأخطاء فقط ❌</button>
+            </div>
+
+            <div id="review-questions-list" style="text-align: right;"></div>
+
+            <button class="btn btn-success" onclick="switchScreen('main-app')" style="width: 100%; margin-top: 20px; font-size: 1.1rem;">العودة للرئيسية 🏠</button>
+        </div>
+
     </div>
 
     <script>
@@ -826,7 +849,7 @@
             if (student) {
                 let myDevice = getClientDeviceFingerprint();
                 if (student.deviceId && student.deviceId !== myDevice) {
-                    alert("⚠️ عذراً، هذا الحساب مسجل ومقفل على جهاز آخر ولا يمكن فتحه من جهاز متعدد!");
+                    alert("⚠️ تحذير أمني من المنصة:\n\nممنوع الدخول من جهاز متعدد أو مختلف عن الجهاز المفعل عليه الحساب أول مرة!\n\nيتوجب عليك التواصل مع المشرف لتقديم طلب فك قفل الجهاز (علماً بأن الحد الأقصى المسموح به هو 3 تغييرات للجهاز فقط طوال فترة الاشتراك).");
                     logoutStudent();
                     return;
                 }
@@ -857,7 +880,7 @@
             
             if (existing) {
                 if (existing.deviceId && existing.deviceId !== myDevice) {
-                    alert("⚠️ هذا الرقم مسجل مسبقاً على جهاز آخر! لا يمكن الدخول من جهاز متعدد.");
+                    alert("⚠️ تحذير أمني من المنصة:\n\nهذا الحساب مقفل على جهاز آخر ويُمنع الدخول المتعدد! يرجى التواصل مع المشرف لطلب السماح بتبديل الجهاز.");
                     return;
                 }
                 existing.deviceId = myDevice;
@@ -871,7 +894,8 @@
                     duration: 'شهر واحد', 
                     durationDays: 30, 
                     expiryDate: null, 
-                    deviceId: myDevice, 
+                    deviceId: myDevice,
+                    deviceResetsLeft: 3, 
                     grades: [] 
                 };
             }
@@ -1277,7 +1301,6 @@
             if(manageSelect) { manageSelect.innerHTML = modelOpts; loadQuestionsForManagement(); }
         }
 
-        // دالة الضغط والتقليص المحسنة لضمان عدم تجاوز حجم مستند فايرستور (أقل من 1 ميجابايت)
         function compressImage(file, maxWidth = 600, maxHeight = 600, quality = 0.5) {
             return new Promise((resolve) => {
                 let reader = new FileReader();
@@ -1332,7 +1355,6 @@
                     correct: correctIdx 
                 });
 
-                // التحقق من الحجم التقديري قبل الإرسال للسحابة
                 let payloadString = JSON.stringify(currentQuestions);
                 if(payloadString.length > 950000) {
                     alert("⚠️ تحذير: هذا النموذج اقترب من الحد الأقصى للسعة (1 ميجابايت). يُفضل إنشاء نموذج جديد وإضافة الأسئلة إليه.");
@@ -1486,9 +1508,71 @@
                 }
             }
 
-            alert(`انتهى الاختبار بنجاح! \nدرجتك المسجلة: ${score} من ${activeQuestions.length}`);
-            switchScreen('main-app');
-            renderMainCategories();
+            document.getElementById('results-score-badge').innerText = `درجتك الإجمالية: ${score} من ${activeQuestions.length} (${Math.round((score/activeQuestions.length)*100)}%)`;
+            switchScreen('results-screen');
+            filterReviewQuestions('all');
+        }
+
+        let currentReviewFilter = 'all';
+        function filterReviewQuestions(filterType) {
+            currentReviewFilter = filterType;
+            let btnAll = document.getElementById('filter-all-btn');
+            let btnWrong = document.getElementById('filter-wrong-btn');
+
+            if(filterType === 'all') {
+                btnAll.style.background = 'var(--primary)';
+                btnWrong.style.background = '#64748b';
+            } else {
+                btnAll.style.background = '#64748b';
+                btnWrong.style.background = 'var(--danger)';
+            }
+
+            let container = document.getElementById('review-questions-list');
+            let html = '';
+
+            activeQuestions.forEach((q, idx) => {
+                let studentAns = userAnswers[idx];
+                let isCorrect = (studentAns === q.correct);
+
+                if(filterType === 'wrong' && isCorrect) return;
+
+                let cardClass = isCorrect ? 'correct-card' : 'wrong-card';
+                let statusTag = isCorrect ? '<span style="color:var(--success); font-weight:800;">إجابة صحيحة ✅</span>' : '<span style="color:var(--danger); font-weight:800;">إجابة خاطئة ❌</span>';
+
+                html += `<div class="review-q-card ${cardClass}">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <strong>سؤال ${idx+1}: ${q.q}</strong>
+                        <div>${statusTag}</div>
+                    </div>`;
+
+                if(q.img) {
+                    html += `<img src="${q.img}" style="max-height:180px; object-fit:contain; border-radius:8px; margin-bottom:8px; display:block;">`;
+                }
+
+                q.opts.forEach((opt, oIdx) => {
+                    let optClass = '';
+                    let labelText = '';
+
+                    if(oIdx === q.correct) {
+                        optClass = 'actual-correct';
+                        labelText = ' (الإجابة الصحيحة ✔️)';
+                    }
+                    if(studentAns === oIdx && !isCorrect) {
+                        optClass = 'user-wrong';
+                        labelText = ' (إجابتك الخاطئة ✖)';
+                    }
+
+                    html += `<div class="review-opt ${optClass}">${opt} ${labelText}</div>`;
+                });
+
+                html += `</div>`;
+            });
+
+            if(html === '' && filterType === 'wrong') {
+                html = `<div style="text-align:center; padding:20px; color:var(--success); font-weight:800; font-size:1.2rem;">🌟 أحسنت! لم تقم بأي أخطاء في هذا الاختبار.</div>`;
+            }
+
+            container.innerHTML = html;
         }
 
         let scratchCanvas, scratchCtx, isScratchPainting = false;
@@ -1585,9 +1669,14 @@
             students.forEach((s) => {
                 if(!s.code) s.code = 'FARIS-' + Math.floor(1000 + Math.random() * 9000);
                 if(!s.duration) s.duration = 'شهر واحد';
+                if(s.deviceResetsLeft === undefined) s.deviceResetsLeft = 3;
 
                 let isStillActive = checkStudentSubscription(s);
-                let deviceBadge = s.deviceId ? `<span style="color:var(--success); font-size:0.75rem;">جهاز مقفل 📱</span><br><button class="btn" style="padding:2px 6px; font-size:0.7rem; margin-top:4px; background:var(--secondary);" onclick="resetStudentDevice('${s.phone}')">فك قفل الجهاز 🔓</button>` : `<span style="color:var(--text-muted); font-size:0.75rem;">لم يسجل الدخول بعد</span>`;
+                let resetsBadge = `<span style="font-size:0.75rem; color:var(--primary); font-weight:700;">المحاولات المتبقية: (${s.deviceResetsLeft} من 3)</span>`;
+
+                let deviceBadge = s.deviceId ? 
+                    `<span style="color:var(--success); font-size:0.75rem;">جهاز مقفل 📱</span><br>${resetsBadge}<br><button class="btn" style="padding:2px 6px; font-size:0.7rem; margin-top:4px; background:var(--secondary);" onclick="resetStudentDevice('${s.phone}')">السماح بتبديل الجهاز 🔓</button>` : 
+                    `<span style="color:var(--text-muted); font-size:0.75rem;">لم يسجل الدخول بعد</span><br>${resetsBadge}`;
 
                 let statusBadge = isStillActive ? 
                     `<span style="color:var(--success); font-weight:800;">نشط ✅</span><br><small>الكود: <strong>${s.code}</strong></small><br><small style="color:var(--primary);">المدة: ${s.duration}</small>` : 
@@ -1631,15 +1720,36 @@
         }
 
         async function resetStudentDevice(phone) {
-            if(!confirm("هل تريد إزالة قفل الجهاز لهذا الطالب ليتمكن من الدخول من جهاز جديد؟")) return;
             let students = await fetchStudentsFromCloud();
             let s = students.find(x => x.phone === phone);
-            if(s) {
-                s.deviceId = null;
+            if(!s) return;
+
+            if(s.deviceResetsLeft === undefined) s.deviceResetsLeft = 3;
+
+            if(s.deviceResetsLeft <= 0) {
+                alert("⚠️ عذراً، هذا الطالب استهلك كافة المحاولات المسموح بها لتبديل الجهاز (3 مرات). سيتم إلغاء تفعيل حسابه تلقائياً.");
+                s.active = false;
+                s.expiryDate = null;
                 await saveStudentToCloud(s);
                 loadAdminStudentsTable();
-                alert("تم فك قفل الجهاز بنجاح!");
+                return;
             }
+
+            if(!confirm(`هل تريد السماح للطالب بفتح حسابه من جهاز جديد؟\n\n(المحاولات المتبقية حالياً: ${s.deviceResetsLeft} من 3). ستقوم بخصم محاولة واحدة.`)) return;
+
+            s.deviceId = null;
+            s.deviceResetsLeft -= 1;
+
+            if(s.deviceResetsLeft <= 0) {
+                s.active = false;
+                s.expiryDate = null;
+                alert("تم فك القفل عن الجهاز. تنبيه: كانت هذه المحاولة الأخيرة للطالب وقد تم إلغاء تفعيل حسابه للوصول للحد الأقصى.");
+            } else {
+                alert(`تم السماح بتبديل الجهاز بنجاح! المحاولات المتبقية للطالب الآن: (${s.deviceResetsLeft} من 3).`);
+            }
+
+            await saveStudentToCloud(s);
+            loadAdminStudentsTable();
         }
 
         async function changeStudentDuration(phone, durationStr) {
@@ -1678,7 +1788,7 @@
         }
 
         async function deleteStudentGrade(phone, gIdx) {
-            if(!confirm("حذف درجة هذا الاختبار للط الطالب؟")) return;
+            if(!confirm("حذف درجة هذا الاختبار للطالب؟")) return;
             let students = await fetchStudentsFromCloud();
             let s = students.find(x => x.phone === phone);
             if(s && s.grades) {
