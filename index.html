@@ -84,6 +84,13 @@
         header h1 { font-size: 2.3rem; font-weight: 900; }
         header p { opacity: 0.95; margin-top: 6px; font-weight: 600; font-size: 1.05rem; }
 
+        /* شريط الإعلانات التفاعلي */
+        .announcement-banner {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white; padding: 16px 20px; border-radius: 18px; margin-bottom: 20px;
+            box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.4); text-align: right; display: none; font-weight: 700;
+        }
+
         .card-box {
             background: var(--card-bg); padding: 30px; border-radius: 24px; text-align: center;
             box-shadow: var(--shadow); margin-top: 20px; border: 1px solid var(--border-color);
@@ -166,7 +173,10 @@
                 <p>في القدرات والتحصيلي</p>
             </header>
 
-            <div class="subscription-info">✨ تصفح الأقسام والنماذج المتاحة بحرية واسترخاء:</div>
+            <!-- شريط الإعلانات الفوري -->
+            <div id="student-announcement-banner" class="announcement-banner"></div>
+
+            <div class="subscription-info">✨ تصفح الأقسام والنماذج وملفات الـ PDF المتاحة بحرية واسترخاء:</div>
             <div id="main-categories-grid" class="grid-cards"></div>
 
             <div style="text-align: center; margin-top: 35px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
@@ -177,13 +187,15 @@
             </div>
         </div>
 
+        <!-- شاشة عرض الفروع أو محتوى الـ PDF -->
         <div id="branches-screen" class="screen card-box">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h2 id="branches-title" style="color: var(--primary);"></h2>
                 <button class="btn" onclick="switchScreen('main-app')" style="background: #64748b; padding: 6px 14px; font-size: 0.85rem;">← العودة للأقسام الرئيسية</button>
             </div>
-            <p style="color: var(--text-muted); margin-bottom: 15px;">اختر القسم الفرعي المطلوب للاطلاع عليه:</p>
+            <p style="color: var(--text-muted); margin-bottom: 15px;" id="branches-subtitle">اختر الفرع المطلوب للاطلاع عليه:</p>
             <div id="branches-grid" class="grid-cards"></div>
+            <div id="pdf-viewer-container" style="margin-top:20px; display:none;"></div>
         </div>
 
         <div id="models-screen" class="screen card-box">
@@ -278,47 +290,64 @@
                     </div>
                 </div>
 
-                <div class="manage-box" style="border-color: var(--primary);">
-                    <h3 style="color: var(--primary); margin-bottom: 8px;">👥 إدارة الطلاب سحابياً، الأكواد، ومدد الاشتراكات (ربط بجهاز واحد)</h3>
-                    <div style="overflow-x: auto;">
-                        <table id="admin-students-table">
-                            <thead>
-                                <tr>
-                                    <th>اسم الطالب</th>
-                                    <th>رقم الجوال</th>
-                                    <th>حالة الجهاز والأمان</th>
-                                    <th>الحالة، الكود والمدة</th>
-                                    <th>الدرجات والنتائج</th>
-                                    <th>إدارة الحساب والتفعيل</th>
-                                </tr>
-                            </thead>
-                            <tbody id="students-table-body"></tbody>
-                        </table>
-                    </div>
+                <!-- قسم الإعلانات الفورية للطلاب -->
+                <div class="manage-box" style="border: 2px solid var(--warning);">
+                    <h3 style="color: var(--warning); margin-bottom: 8px;">📢 إدارة الإعلانات الفورية للطلاب (سحابياً)</h3>
+                    <label style="font-weight:700;">نص الإعلن الذي يظهر للطلاب (اتركه فارغاً لإخفاء الإعلان):</label>
+                    <textarea id="admin-announcement-text" rows="2" placeholder="اكتب نص الإعلان هنا..."></textarea>
+                    <button class="btn" onclick="saveAnnouncementToCloud()" style="background: var(--warning); width: 100%; margin-top: 8px;">نشر الإعلان فوراً للطلاب 🚀</button>
                 </div>
 
+                <!-- إدارة ونقل وتعديل الأقسام -->
                 <div class="manage-box">
-                    <h3 style="color: var(--primary); margin-bottom: 6px;">📁 إدارة الأقسام الرئيسية (سحابياً)</h3>
-                    <input type="text" id="new-main-cat-title" placeholder="عنوان القسم الرئيسي">
+                    <h3 style="color: var(--primary); margin-bottom: 6px;">📁 إدارة وتعديل الأقسام (تعديل، تحويل رئيسي/فرعي)</h3>
+                    <input type="text" id="new-main-cat-title" placeholder="عنوان القسم الرئيسي الجديد">
                     <button class="btn" onclick="addNewMainCategory()" style="width: 100%; margin-top: 6px;">إضافة قسم رئيسي ➕</button>
-                    <div style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px;">
-                        <label style="font-size:0.85rem; font-weight:750; color: var(--danger);">حذف قسم رئيسي:</label>
+                    
+                    <div style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                        <label style="font-size:0.9rem; font-weight:750; color:var(--primary);">✏️ تعديل اسم قسم رئيسي:</label>
+                        <select id="rename-main-cat-select" style="margin-top:4px;"></select>
+                        <input type="text" id="updated-main-cat-title" placeholder="الاسم الجديد للقسم الرئيسي" style="margin-top:4px;">
+                        <button class="btn" onclick="renameMainCategoryBtn()" style="background: var(--secondary); width: 100%; margin-top: 6px; padding: 8px;">حفظ اسم القسم الرئيسي الجديد 💾</button>
+                    </div>
+
+                    <div style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                        <label style="font-size:0.9rem; font-weight:750; color:var(--danger);">🗑️ حذف قسم رئيسي:</label>
                         <select id="delete-main-cat-select" style="margin-top:4px;"></select>
                         <button class="btn btn-danger" onclick="deleteMainCategoryBtn()" style="width: 100%; margin-top: 6px; padding: 8px;">حذف القسم المحدد 🗑️</button>
                     </div>
                 </div>
 
+                <!-- إدارة الفروع (وتحويلها أو تعديلها) -->
                 <div class="manage-box">
-                    <h3 style="color: var(--secondary); margin-bottom: 6px;">📂 إدارة الفرع (سحابياً)</h3>
-                    <label>اختر القسم الرئيسي:</label>
+                    <h3 style="color: var(--secondary); margin-bottom: 6px;">📂 إدارة وفروع الأقسام (تحويل بين رئيسي وفرعي)</h3>
+                    <label>اختر القسم الرئيسي التابع له:</label>
                     <select id="parent-category-select"></select>
                     <input type="text" id="new-branch-title" placeholder="عنوان الفرع الجديد" style="margin-top:4px;">
-                    <button class="btn" onclick="addNewBranch()" style="background: var(--secondary); width: 100%; margin-top: 6px;">إضافة الفرع ➕</button>
-                    <div style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px;">
-                        <label style="font-size:0.85rem; font-weight:750; color: var(--danger);">حذف فرع:</label>
+                    <button class="btn" onclick="addNewBranch()" style="background: var(--secondary); width: 100%; margin-top: 6px;">إضافة فرع ➕</button>
+                    
+                    <div style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                        <label style="font-size:0.9rem; font-weight:750; color:var(--primary);">🔄 تحويل فرع إلى "قسم رئيسي مستقل" والعكس:</label>
+                        <select id="convert-branch-select" style="margin-top:4px;"></select>
+                        <button class="btn" onclick="convertBranchToMainCategory()" style="background: var(--success); width: 100%; margin-top: 6px; padding: 8px;">تحويل الفرع المختار إلى قسم رئيسي 🔄</button>
+                    </div>
+
+                    <div style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                        <label style="font-size:0.9rem; font-weight:750; color:var(--danger);">حذف فرع:</label>
                         <select id="delete-branch-select" style="margin-top:4px;"></select>
                         <button class="btn btn-danger" onclick="deleteBranchBtn()" style="width: 100%; margin-top: 6px; padding: 8px;">حذف الفرع المحدد 🗑️</button>
                     </div>
+                </div>
+
+                <!-- قسم رفع ملفات الـ PDF -->
+                <div class="manage-box" style="border: 2px solid var(--success);">
+                    <h3 style="color: var(--success); margin-bottom: 6px;">📚 إضافة ملفات PDF تعليمية (سحابياً)</h3>
+                    <label>اختر الفرع أو القسم الذي ترغب في رفع ملف الـ PDF داخله:</label>
+                    <select id="pdf-target-branch-select"></select>
+                    <input type="text" id="new-pdf-title" placeholder="عنوان ملف الـ PDF (مثال: ملخص الجبر الشامل)" style="margin-top:4px;">
+                    <label style="margin-top:6px; display:block; font-weight:700;">اختر ملف الـ PDF (يُفضل حجم مناسب):</label>
+                    <input type="file" id="pdf-file-input" accept="application/pdf" style="background: var(--card-bg); padding: 4px;">
+                    <button class="btn btn-success" onclick="uploadPdfToCloud()" style="width: 100%; margin-top: 10px;">رفع وحفظ ملف الـ PDF بالسحابة 💾</button>
                 </div>
 
                 <div class="manage-box">
@@ -369,6 +398,26 @@
                         <div id="questions-manage-list" style="margin-top: 6px; max-height: 150px; overflow-y: auto;"></div>
                     </div>
                 </div>
+
+                <div class="manage-box" style="border-color: var(--primary);">
+                    <h3 style="color: var(--primary); margin-bottom: 8px;">👥 إدارة الطلاب سحابياً، الأكواد، ومدد الاشتراكات (ربط بجهاز واحد)</h3>
+                    <div style="overflow-x: auto;">
+                        <table id="admin-students-table">
+                            <thead>
+                                <tr>
+                                    <th>اسم الطالب</th>
+                                    <th>رقم الجوال</th>
+                                    <th>حالة الجهاز والأمان</th>
+                                    <th>الحالة، الكود والمدة</th>
+                                    <th>الدرجات والنتائج</th>
+                                    <th>إدارة الحساب والتفعيل</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
             <br><button class="btn" style="background: #64748b; margin-top: 15px; width: 100%;" onclick="switchScreen('main-app')">← خروج من لوحة المشرف</button>
         </div>
@@ -399,7 +448,7 @@
                         </div>
                     </div>
 
-                    <!-- سبورة الحل التفاعلية مع القلم والممحاة -->
+                    <!-- سبورة الحل الذكية -->
                     <div class="scratchpad-container">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                             <span style="font-weight: 800; font-size: 0.9rem; color: var(--secondary);">📝 سبورة الحل الذكية:</span>
@@ -443,7 +492,6 @@
     </div>
 
     <script>
-        // إعداد بيانات المدير الرئيسي (sly / 2982023amS) أول مرة فقط إذا لم تكن مسجلة
         if (!localStorage.getItem('admin_user')) {
             localStorage.setItem('admin_user', 'sly');
         }
@@ -497,9 +545,10 @@
             applySiteCustomizations();
             updateAuthNavBox();
             renderMainCategories();
+            checkAndRenderAnnouncement();
         });
 
-        async function fetchSiteSettingsFromCloud() {
+        async function fetchPlatformSettingsFromCloud() {
             try {
                 let docSnap = await window.FB_GETDOC(window.FB_DOC(window.FB_DB, "platform_data", "settings"));
                 if (docSnap.exists()) { return docSnap.data(); }
@@ -508,7 +557,7 @@
         }
 
         async function applySiteCustomizations() {
-            let cloudSettings = await fetchSiteSettingsFromCloud();
+            let cloudSettings = await fetchPlatformSettingsFromCloud();
             let name = cloudSettings?.name || "منصة الفارس التعليمية";
             let logo = cloudSettings?.logo || "⚔️";
             let color = cloudSettings?.color || "#4f46e5";
@@ -516,8 +565,10 @@
 
             document.getElementById('platform-name-heading').innerText = name;
             document.getElementById('page-title').innerText = name;
-            document.getElementById('site-name-input').value = name;
-            document.getElementById('site-whatsapp-input').value = whatsapp;
+            let siteInput = document.getElementById('site-name-input');
+            if(siteInput) siteInput.value = name;
+            let waInput = document.getElementById('site-whatsapp-input');
+            if(waInput) waInput.value = whatsapp;
 
             let badge = document.getElementById('header-logo-badge');
             let authBadge = document.getElementById('auth-logo-badge');
@@ -530,7 +581,8 @@
             }
 
             document.documentElement.style.setProperty('--primary', color);
-            document.getElementById('site-theme-color-select').value = color;
+            let colorSelect = document.getElementById('site-theme-color-select');
+            if(colorSelect) colorSelect.value = color;
 
             let waBtn = document.getElementById('main-whatsapp-btn');
             if(waBtn) {
@@ -544,11 +596,12 @@
             let color = document.getElementById('site-theme-color-select').value;
             let logoInput = document.getElementById('site-logo-input');
 
-            let existingSettings = (await fetchSiteSettingsFromCloud()) || {};
+            let existingSettings = (await fetchPlatformSettingsFromCloud()) || {};
             let logoData = existingSettings.logo || "⚔️";
 
             let proceedSave = async (finalLogo) => {
                 let newSettings = {
+                    ...existingSettings,
                     name: name || "منصة الفارس التعليمية",
                     whatsapp: whatsapp || "966507927427",
                     color: color,
@@ -569,6 +622,36 @@
                 reader.readAsDataURL(logoInput.files[0]);
             } else {
                 proceedSave(logoData);
+            }
+        }
+
+        async function saveAnnouncementToCloud() {
+            let text = document.getElementById('admin-announcement-text').value.trim();
+            let existingSettings = (await fetchPlatformSettingsFromCloud()) || {};
+            existingSettings.announcement = text;
+            try {
+                await window.FB_SETDOC(window.FB_DOC(window.FB_DB, "platform_data", "settings"), existingSettings);
+                alert("تم نشر الإعلان بنجاح ليظهر لجميع الطلاب فوراً!");
+                checkAndRenderAnnouncement();
+            } catch(e) {
+                alert("حدث خطأ أثناء نشر الإعلان.");
+            }
+        }
+
+        async function checkAndRenderAnnouncement() {
+            let settings = await fetchPlatformSettingsFromCloud();
+            let banner = document.getElementById('student-announcement-banner');
+            let adminArea = document.getElementById('admin-announcement-text');
+            if(settings && settings.announcement) {
+                if(banner) {
+                    banner.innerHTML = `📢 <strong>إعلان هامة للمنصة:</strong> ${settings.announcement}`;
+                    banner.style.display = 'block';
+                }
+                if(adminArea && adminArea.value === '') {
+                    adminArea.value = settings.announcement;
+                }
+            } else {
+                if(banner) banner.style.display = 'none';
             }
         }
 
@@ -594,7 +677,7 @@
         function switchScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
-            if(screenId === 'main-app') { renderMainCategories(); }
+            if(screenId === 'main-app') { renderMainCategories(); checkAndRenderAnnouncement(); }
             if(screenId === 'admin-screen') { 
                 let currentRole = localStorage.getItem('current_admin_role');
                 if(currentRole === 'sub') {
@@ -606,6 +689,7 @@
                 }
                 populateAdminSelects(); 
                 loadAdminStudentsTable(); 
+                checkAndRenderAnnouncement();
             }
             updateAuthNavBox();
         }
@@ -639,7 +723,7 @@
             cats.forEach(cat => {
                 html += `<div class="nav-card" onclick="openBranches('${cat.id}')">
                     <h3>📁 ${cat.title}</h3>
-                    <p>اضغط لاستعراض الأقسام والفروع الداخلية ➔</p>
+                    <p>اضغط لاستعراض الأقسام والفروع وملفات الـ PDF ➔</p>
                 </div>`;
             });
             container.innerHTML = html;
@@ -651,20 +735,58 @@
             if(!cat) return;
 
             document.getElementById('branches-title').innerText = cat.title;
+            document.getElementById('branches-subtitle').innerText = "اختر الفرع المطلوب أو تصفح ملفات الـ PDF المتاحة:";
             let container = document.getElementById('branches-grid');
+            let pdfViewer = document.getElementById('pdf-viewer-container');
+            pdfViewer.style.display = 'none';
+            pdfViewer.innerHTML = '';
+
             let html = '';
+            // عرض الفروع العادية
             if(cat.branches && cat.branches.length > 0) {
                 cat.branches.forEach(branch => {
                     html += `<div class="nav-card" onclick="openModels('${cat.id}', '${branch.id}')">
                         <h3>📂 ${branch.name}</h3>
-                        <p>اضغط لاستعراض النماذج والأبواب ➔</p>
+                        <p>اضغط لاستعراض النماذج والاختبارات ➔</p>
                     </div>`;
                 });
-            } else {
-                html += `<p style="color:var(--text-muted);">لا توجد فروع مسجلة هنا بعد.</p>`;
             }
+
+            // عرض ملفات الـ PDF المرفوعة في هذا القسم الرئيسي
+            if(cat.pdfs && cat.pdfs.length > 0) {
+                cat.pdfs.forEach((pdfObj, pdfIdx) => {
+                    html += `<div class="nav-card" onclick="viewPdfFile('${cat.id}', ${pdfIdx})" style="border-color: var(--success); background: rgba(16, 185, 129, 0.03);">
+                        <h3 style="color: var(--success);">📄 ${pdfObj.name}</h3>
+                        <p>اضغط لعرض وقراءة ملف الـ PDF ➔</p>
+                    </div>`;
+                });
+            }
+
+            if(!cat.branches || cat.branches.length === 0) {
+                if(!cat.pdfs || cat.pdfs.length === 0) {
+                    html += `<p style="color:var(--text-muted);">لا توجد فروع أو ملفات مسجلة هنا بعد.</p>`;
+                }
+            }
+
             container.innerHTML = html;
             switchScreen('branches-screen');
+        }
+
+        function viewPdfFile(catId, pdfIdx) {
+            getCategories().then(cats => {
+                let cat = cats.find(c => c.id === catId);
+                if(cat && cat.pdfs && cat.pdfs[pdfIdx]) {
+                    let pdfData = cat.pdfs[pdfIdx];
+                    document.getElementById('branches-grid').innerHTML = '';
+                    document.getElementById('branches-subtitle').innerText = `عرض ملف الـ PDF: ${pdfData.name}`;
+                    let pdfViewer = document.getElementById('pdf-viewer-container');
+                    pdfViewer.style.display = 'block';
+                    pdfViewer.innerHTML = `<div style="text-align:center;">
+                        <iframe src="${pdfData.data}" style="width:100%; height:600px; border:2px solid var(--border-color); border-radius:12px;"></iframe>
+                        <br><a href="${pdfData.data}" download="${pdfData.name}.pdf" class="btn btn-success" style="margin-top:12px;">تحميل ملف الـ PDF 📥</a>
+                    </div>`;
+                }
+            });
         }
 
         async function openModels(catId, branchId) {
@@ -936,131 +1058,31 @@
             loadSubAdminsTable();
         }
 
-        async function loadAdminStudentsTable() {
-            let students = await fetchStudentsFromCloud();
-            let tbody = document.getElementById('students-table-body');
-            if(!tbody) return;
-            if(students.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted);">لا توجد طلاب مسجلين حتى الآن.</td></tr>`;
-                return;
-            }
-
-            let html = '';
-            students.forEach((s) => {
-                if(!s.code) s.code = 'FARIS-' + Math.floor(1000 + Math.random() * 9000);
-                if(!s.duration) s.duration = 'شهر واحد';
-
-                let isStillActive = checkStudentSubscription(s);
-                let deviceBadge = s.deviceId ? `<span style="color:var(--success); font-size:0.75rem;">جهاز مقفل 📱</span><br><button class="btn" style="padding:2px 6px; font-size:0.7rem; margin-top:4px; background:var(--secondary);" onclick="resetStudentDevice('${s.phone}')">فك قفل الجهاز 🔓</button>` : `<span style="color:var(--text-muted); font-size:0.75rem;">لم يسجل الدخول بعد</span>`;
-
-                let statusBadge = isStillActive ? 
-                    `<span style="color:var(--success); font-weight:800;">نشط ✅</span><br><small>الكود: <strong>${s.code}</strong></small><br><small style="color:var(--primary);">المدة: ${s.duration}</small>` : 
-                    `<span style="color:var(--warning); font-weight:800;">معلق أو منتهي ⏳</span><br><small>الكود: <strong>${s.code}</strong></small>`;
-                
-                let gradesHtml = '';
-                if(s.grades && s.grades.length > 0) {
-                    s.grades.forEach((g, gIdx) => {
-                        gradesHtml += `<div style="font-size:0.8rem; background:var(--bg-color); padding:4px; margin:2px 0; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
-                            <span>${g.modelName}: <strong>${g.score}/${g.total}</strong></span>
-                            <button class="btn btn-danger" style="padding:1px 6px; font-size:0.65rem;" onclick="deleteStudentGrade('${s.phone}', ${gIdx})">حذف 🗑️</button>
-                        </div>`;
-                    });
-                } else {
-                    gradesHtml = '<span style="color:var(--text-muted); font-size:0.8rem;">لا توجد اختبارات مسجلة</span>';
-                }
-
-                html += `<tr>
-                    <td>${s.name}</td>
-                    <td>${s.phone}</td>
-                    <td>${deviceBadge}</td>
-                    <td>
-                        ${statusBadge}
-                        <div style="margin-top:6px;">
-                            <select onchange="changeStudentDuration('${s.phone}', this.value)" style="padding:3px; font-size:0.75rem;">
-                                <option value="شهر واحد" ${s.duration==='شهر واحد'?'selected':''}>شهر واحد</option>
-                                <option value="3 أشهر" ${s.duration==='3 أشهر'?'selected':''}>3 أشهر</option>
-                                <option value="سنة كاملة" ${s.duration==='سنة كاملة'?'selected':''}>سنة كاملة</option>
-                                <option value="مفتوح" ${s.duration==='مفتوح'?'selected':''}>مفتوح</option>
-                            </select>
-                        </div>
-                    </td>
-                    <td style="max-width:220px; text-align:right;">${gradesHtml}</td>
-                    <td>
-                        <button class="btn ${s.active?'btn-danger':'btn-success'}" style="padding:4px 10px; font-size:0.8rem; width:100%; margin-bottom:4px;" onclick="toggleStudentActivation('${s.phone}')">${s.active?'إلغاء التفعيل':'تفعيل يدوي'}</button>
-                        <button class="btn btn-danger" style="padding:4px 10px; font-size:0.8rem; width:100%;" onclick="deleteStudent('${s.phone}')">حذف الطالب 🗑️</button>
-                    </td>
-                </tr>`;
-            });
-            tbody.innerHTML = html;
-        }
-
-        async function resetStudentDevice(phone) {
-            if(!confirm("هل تريد إزالة قفل الجهاز لهذا الطالب ليتمكن من الدخول من جهاز جديد؟")) return;
-            let students = await fetchStudentsFromCloud();
-            let s = students.find(x => x.phone === phone);
-            if(s) {
-                s.deviceId = null;
-                await saveStudentToCloud(s);
-                loadAdminStudentsTable();
-                alert("تم فك قفل الجهاز بنجاح!");
-            }
-        }
-
-        async function changeStudentDuration(phone, durationStr) {
-            let students = await fetchStudentsFromCloud();
-            let s = students.find(x => x.phone === phone);
-            if(!s) return;
-            s.duration = durationStr;
-            let days = 30;
-            if(durationStr === '3 أشهر') days = 90;
-            if(durationStr === 'سنة كاملة') days = 365;
-            if(durationStr === 'مفتوح') days = 3650;
-            s.durationDays = days;
-            if(s.active) { s.expiryDate = new Date().getTime() + (days * 24 * 60 * 60 * 1000); }
-            await saveStudentToCloud(s);
-            loadAdminStudentsTable();
-            alert("تم تحديث مدة اشتراك الطالب بنجاح!");
-        }
-
-        async function toggleStudentActivation(phone) {
-            let students = await fetchStudentsFromCloud();
-            let s = students.find(x => x.phone === phone);
-            if(!s) return;
-            s.active = !s.active;
-            if(s.active) {
-                let days = s.durationDays || 30;
-                s.expiryDate = new Date().getTime() + (days * 24 * 60 * 60 * 1000);
-            } else { s.expiryDate = null; }
-            await saveStudentToCloud(s);
-            loadAdminStudentsTable();
-        }
-
-        async function deleteStudent(phone) {
-            if(!confirm("هل أنت متأكد من حذف هذا الطالب نهائياً؟")) return;
-            await deleteStudentFromCloud(phone);
-            loadAdminStudentsTable();
-        }
-
-        async function deleteStudentGrade(phone, gIdx) {
-            if(!confirm("حذف درجة هذا الاختبار للطالب؟")) return;
-            let students = await fetchStudentsFromCloud();
-            let s = students.find(x => x.phone === phone);
-            if(s && s.grades) {
-                s.grades.splice(gIdx, 1);
-                await saveStudentToCloud(s);
-                loadAdminStudentsTable();
-            }
-        }
-
+        // إدارة وتعديل الأقسام وتحويلها بين رئيسي وفرعي
         async function addNewMainCategory() {
             let title = document.getElementById('new-main-cat-title').value.trim();
             if(!title) return alert("أدخل عنوان القسم الرئيسي!");
             let cats = await getCategories();
-            cats.push({ id: 'cat_' + Date.now(), title: title, branches: [] });
+            cats.push({ id: 'cat_' + Date.now(), title: title, branches: [], pdfs: [] });
             await saveCategoriesToCloud(cats);
             alert("تم إضافة القسم الرئيسي في السحابة بنجاح!");
             document.getElementById('new-main-cat-title').value = '';
             populateAdminSelects(); renderMainCategories();
+        }
+
+        async function renameMainCategoryBtn() {
+            let catId = document.getElementById('rename-main-cat-select').value;
+            let newTitle = document.getElementById('updated-main-cat-title').value.trim();
+            if(!catId || !newTitle) return alert("اختر القسم وأدخل الاسم الجديد!");
+            let cats = await getCategories();
+            let cat = cats.find(c => c.id === catId);
+            if(cat) {
+                cat.title = newTitle;
+                await saveCategoriesToCloud(cats);
+                alert("تم تحديث اسم القسم الرئيسي بنجاح!");
+                document.getElementById('updated-main-cat-title').value = '';
+                populateAdminSelects(); renderMainCategories();
+            }
         }
 
         async function deleteMainCategoryBtn() {
@@ -1086,6 +1108,47 @@
             await saveCategoriesToCloud(cats);
             alert("تم إضافة الفرع في السحابة بنجاح!");
             document.getElementById('new-branch-title').value = '';
+            populateAdminSelects(); renderMainCategories();
+        }
+
+        // تحويل فرع إلى قسم رئيسي مستقل والعكس
+        async function convertBranchToMainCategory() {
+            let branchId = document.getElementById('convert-branch-select').value;
+            if(!branchId) return alert("اختر الفرع المراد تحويله!");
+            let cats = await getCategories();
+            let targetBranch = null;
+            let parentCatTitle = "";
+
+            cats.forEach(c => {
+                if(c.branches) {
+                    let b = c.branches.find(x => x.id === branchId);
+                    if(b) {
+                        targetBranch = b;
+                        parentCatTitle = c.title;
+                    }
+                }
+            });
+
+            if(!targetBranch) return alert("الفرع غير موجود!");
+            if(!confirm(`هل تريد تحويل الفرع "${targetBranch.name}" ليصبح قسماً رئيسياً مستقلاً؟`)) return;
+
+            // إزالة الفرع من مكانه القديم
+            cats.forEach(c => {
+                if(c.branches) {
+                    c.branches = c.branches.filter(b => b.id !== branchId);
+                }
+            });
+
+            // إضافته كقسم رئيسي جديد
+            cats.push({
+                id: 'cat_' + Date.now(),
+                title: `${parentCatTitle} ➔ ${targetBranch.name}`,
+                branches: [{ id: 'br_' + Date.now(), name: targetBranch.name, models: targetBranch.models || [] }],
+                pdfs: []
+            });
+
+            await saveCategoriesToCloud(cats);
+            alert("تم تحويل الفرع إلى قسم رئيسي بنجاح!");
             populateAdminSelects(); renderMainCategories();
         }
 
@@ -1150,6 +1213,34 @@
             populateAdminSelects(); renderMainCategories();
         }
 
+        // رفع ملف الـ PDF إلى القسم الرئيسي سحابياً
+        async function uploadPdfToCloud() {
+            let catId = document.getElementById('pdf-target-branch-select').value;
+            let title = document.getElementById('new-pdf-title').value.trim();
+            let fileInput = document.getElementById('pdf-file-input');
+
+            if(!catId || !title || !fileInput.files[0]) return alert("اختر القسم، وأدخل عنوان الملف، واضغط لتحديد ملف الـ PDF!");
+            
+            let file = fileInput.files[0];
+            let reader = new FileReader();
+            reader.onload = async function(e) {
+                let base64Pdf = e.target.result;
+                let cats = await getCategories();
+                let cat = cats.find(c => c.id === catId);
+                if(cat) {
+                    if(!cat.pdfs) cat.pdfs = [];
+                    cat.pdfs.push({ name: title, data: base64Pdf });
+                    await saveCategoriesToCloud(cats);
+                    alert("تم رفع وحفظ ملف الـ PDF في السحابة بنجاح! 📚");
+                    document.getElementById('new-pdf-title').value = '';
+                    fileInput.value = '';
+                    populateAdminSelects();
+                    renderMainCategories();
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
         async function getQuizDatabaseForModel(modelKey) {
             try {
                 let docSnap = await window.FB_GETDOC(window.FB_DOC(window.FB_DB, "quiz_questions", modelKey));
@@ -1159,16 +1250,19 @@
         }
 
         async function populateAdminSelects() {
+            let renameMainSelect = document.getElementById('rename-main-cat-select');
             let mainDelSelect = document.getElementById('delete-main-cat-select');
             let parentSelect = document.getElementById('parent-category-select');
+            let convertBranchSelect = document.getElementById('convert-branch-select');
             let branchDelSelect = document.getElementById('delete-branch-select');
             let branchSelect = document.getElementById('branch-select-for-model');
+            let pdfTargetSelect = document.getElementById('pdf-target-branch-select');
             let modelDelSelect = document.getElementById('delete-model-select');
             let modelSelect = document.getElementById('question-target-model-select');
             let manageSelect = document.getElementById('manage-questions-select');
 
             let cats = await getCategories();
-            let mainOpts = '', parentOpts = '', branchOpts = '', modelOpts = '';
+            let mainOpts = '', parentOpts = '', branchOpts = '', convertOpts = '', modelOpts = '';
 
             cats.forEach(cat => {
                 mainOpts += `<option value="${cat.id}">${cat.title}</option>`;
@@ -1176,6 +1270,7 @@
                 if(cat.branches) {
                     cat.branches.forEach(b => {
                         branchOpts += `<option value="${b.id}">${cat.title} ➔ ${b.name}</option>`;
+                        convertOpts += `<option value="${b.id}">${cat.title} ➔ ${b.name}</option>`;
                         if(b.models) {
                             b.models.forEach(m => {
                                 modelOpts += `<option value="${m.id}">${cat.title} ➔ ${b.name} ➔ ${m.name}</option>`;
@@ -1185,10 +1280,13 @@
                 }
             });
 
+            if(renameMainSelect) renameMainSelect.innerHTML = mainOpts;
             if(mainDelSelect) mainDelSelect.innerHTML = mainOpts;
             if(parentSelect) parentSelect.innerHTML = parentOpts;
+            if(convertBranchSelect) convertBranchSelect.innerHTML = convertOpts;
             if(branchDelSelect) branchDelSelect.innerHTML = branchOpts;
             if(branchSelect) branchSelect.innerHTML = branchOpts;
+            if(pdfTargetSelect) pdfTargetSelect.innerHTML = mainOpts;
             if(modelDelSelect) modelDelSelect.innerHTML = modelOpts;
             if(modelSelect) modelSelect.innerHTML = modelOpts;
             if(manageSelect) { manageSelect.innerHTML = modelOpts; loadQuestionsForManagement(); }
@@ -1478,6 +1576,122 @@
             } else {
                 box.classList.remove('zoomed-in');
                 btn.innerText = '🔍 تكبير السؤال'; btn.style.background = 'var(--secondary)';
+            }
+        }
+
+        async function loadAdminStudentsTable() {
+            let students = await fetchStudentsFromCloud();
+            let tbody = document.getElementById('students-table-body');
+            if(!tbody) return;
+            if(students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-muted);">لا توجد طلاب مسجلين حتى الآن.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            students.forEach((s) => {
+                if(!s.code) s.code = 'FARIS-' + Math.floor(1000 + Math.random() * 9000);
+                if(!s.duration) s.duration = 'شهر واحد';
+
+                let isStillActive = checkStudentSubscription(s);
+                let deviceBadge = s.deviceId ? `<span style="color:var(--success); font-size:0.75rem;">جهاز مقفل 📱</span><br><button class="btn" style="padding:2px 6px; font-size:0.7rem; margin-top:4px; background:var(--secondary);" onclick="resetStudentDevice('${s.phone}')">فك قفل الجهاز 🔓</button>` : `<span style="color:var(--text-muted); font-size:0.75rem;">لم يسجل الدخول بعد</span>`;
+
+                let statusBadge = isStillActive ? 
+                    `<span style="color:var(--success); font-weight:800;">نشط ✅</span><br><small>الكود: <strong>${s.code}</strong></small><br><small style="color:var(--primary);">المدة: ${s.duration}</small>` : 
+                    `<span style="color:var(--warning); font-weight:800;">معلق أو منتهي ⏳</span><br><small>الكود: <strong>${s.code}</strong></small>`;
+                
+                let gradesHtml = '';
+                if(s.grades && s.grades.length > 0) {
+                    s.grades.forEach((g, gIdx) => {
+                        gradesHtml += `<div style="font-size:0.8rem; background:var(--bg-color); padding:4px; margin:2px 0; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+                            <span>${g.modelName}: <strong>${g.score}/${g.total}</strong></span>
+                            <button class="btn btn-danger" style="padding:1px 6px; font-size:0.65rem;" onclick="deleteStudentGrade('${s.phone}', ${gIdx})">حذف 🗑️</button>
+                        </div>`;
+                    });
+                } else {
+                    gradesHtml = '<span style="color:var(--text-muted); font-size:0.8rem;">لا توجد اختبارات مسجلة</span>';
+                }
+
+                html += `<tr>
+                    <td>${s.name}</td>
+                    <td>${s.phone}</td>
+                    <td>${deviceBadge}</td>
+                    <td>
+                        ${statusBadge}
+                        <div style="margin-top:6px;">
+                            <select onchange="changeStudentDuration('${s.phone}', this.value)" style="padding:3px; font-size:0.75rem;">
+                                <option value="شهر واحد" ${s.duration==='شهر واحد'?'selected':''}>شهر واحد</option>
+                                <option value="3 أشهر" ${s.duration==='3 أشهر'?'selected':''}>3 أشهر</option>
+                                <option value="سنة كاملة" ${s.duration==='سنة كاملة'?'selected':''}>سنة كاملة</option>
+                                <option value="مفتوح" ${s.duration==='مفتوح'?'selected':''}>مفتوح</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td style="max-width:220px; text-align:right;">${gradesHtml}</td>
+                    <td>
+                        <button class="btn ${s.active?'btn-danger':'btn-success'}" style="padding:4px 10px; font-size:0.8rem; width:100%; margin-bottom:4px;" onclick="toggleStudentActivation('${s.phone}')">${s.active?'إلغاء التفعيل':'تفعيل يدوي'}</button>
+                        <button class="btn btn-danger" style="padding:4px 10px; font-size:0.8rem; width:100%;" onclick="deleteStudent('${s.phone}')">حذف الطالب 🗑️</button>
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        async function resetStudentDevice(phone) {
+            if(!confirm("هل تريد إزالة قفل الجهاز لهذا الطالب ليتمكن من الدخول من جهاز جديد؟")) return;
+            let students = await fetchStudentsFromCloud();
+            let s = students.find(x => x.phone === phone);
+            if(s) {
+                s.deviceId = null;
+                await saveStudentToCloud(s);
+                loadAdminStudentsTable();
+                alert("تم فك قفل الجهاز بنجاح!");
+            }
+        }
+
+        async function changeStudentDuration(phone, durationStr) {
+            let students = await fetchStudentsFromCloud();
+            let s = students.find(x => x.phone === phone);
+            if(!s) return;
+            s.duration = durationStr;
+            let days = 30;
+            if(durationStr === '3 أشهر') days = 90;
+            if(durationStr === 'سنة كاملة') days = 365;
+            if(durationStr === 'مفتوح') days = 3650;
+            s.durationDays = days;
+            if(s.active) { s.expiryDate = new Date().getTime() + (days * 24 * 60 * 60 * 1000); }
+            await saveStudentToCloud(s);
+            loadAdminStudentsTable();
+            alert("تم تحديث مدة اشتراك الطالب بنجاح!");
+        }
+
+        async function toggleStudentActivation(phone) {
+            let students = await fetchStudentsFromCloud();
+            let s = students.find(x => x.phone === phone);
+            if(!s) return;
+            s.active = !s.active;
+            if(s.active) {
+                let days = s.durationDays || 30;
+                s.expiryDate = new Date().getTime() + (days * 24 * 60 * 60 * 1000);
+            } else { s.expiryDate = null; }
+            await saveStudentToCloud(s);
+            loadAdminStudentsTable();
+        }
+
+        async function deleteStudent(phone) {
+            if(!confirm("هل أنت متأكد من حذف هذا الطالب نهائياً؟")) return;
+            await deleteStudentFromCloud(phone);
+            loadAdminStudentsTable();
+        }
+
+        async function deleteStudentGrade(phone, gIdx) {
+            if(!confirm("حذف درجة هذا الاختبار للطالب؟")) return;
+            let students = await fetchStudentsFromCloud();
+            let s = students.find(x => x.phone === phone);
+            if(s && s.grades) {
+                s.grades.splice(gIdx, 1);
+                await saveStudentToCloud(s);
+                loadAdminStudentsTable();
             }
         }
     </script>
