@@ -210,7 +210,7 @@
         <div id="student-auth-screen" class="screen card-box" style="max-width: 500px; margin: 30px auto;">
             <div class="logo-badge" id="auth-logo-badge">🎓</div>
             <h2 style="color: var(--primary); margin-bottom: 10px;">سجل بياناتك في المنصة</h2>
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">أدخل اسمك ورقم جوالك للاشتراك وحفظ نتائجك (يُقفل الحساب على هذا الجهاز حصرياً)</p>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">أدخل اسمك ورقم جوالك للااشتراك وحفظ نتائجك (يُقفل الحساب على هذا الجهاز حصرياً)</p>
             
             <input type="text" id="reg-student-name" placeholder="الاسم الثلاثي الكامل">
             <input type="text" id="reg-student-phone" placeholder="رقم الجوال (مثال: 0507927427)">
@@ -293,7 +293,7 @@
                 <!-- قسم الإعلانات الفورية للطلاب -->
                 <div class="manage-box" style="border: 2px solid var(--warning);">
                     <h3 style="color: var(--warning); margin-bottom: 8px;">📢 إدارة الإعلانات الفورية للطلاب (سحابياً)</h3>
-                    <label style="font-weight:700;">نص الإعلن الذي يظهر للطلاب (اتركه فارغاً لإخفاء الإعلان):</label>
+                    <label style="font-weight:700;">نص الإعلان الذي يظهر للطلاب (اتركه فارغاً لإخفاء الإعلان):</label>
                     <textarea id="admin-announcement-text" rows="2" placeholder="اكتب نص الإعلان هنا..."></textarea>
                     <button class="btn" onclick="saveAnnouncementToCloud()" style="background: var(--warning); width: 100%; margin-top: 8px;">نشر الإعلان فوراً للطلاب 🚀</button>
                 </div>
@@ -327,7 +327,7 @@
                     <button class="btn" onclick="addNewBranch()" style="background: var(--secondary); width: 100%; margin-top: 6px;">إضافة فرع ➕</button>
                     
                     <div style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 10px;">
-                        <label style="font-size:0.9rem; font-weight:750; color:var(--primary);">🔄 تحويل فرع إلى "قسم رئيسي مستقل" والعكس:</label>
+                        <label style="font-size:0.9rem; font-weight:750; color:var(--primary);">🔄 تحويل فرع إلى "قسم رئيسي مستقل":</label>
                         <select id="convert-branch-select" style="margin-top:4px;"></select>
                         <button class="btn" onclick="convertBranchToMainCategory()" style="background: var(--success); width: 100%; margin-top: 6px; padding: 8px;">تحويل الفرع المختار إلى قسم رئيسي 🔄</button>
                     </div>
@@ -342,10 +342,10 @@
                 <!-- قسم رفع ملفات الـ PDF -->
                 <div class="manage-box" style="border: 2px solid var(--success);">
                     <h3 style="color: var(--success); margin-bottom: 6px;">📚 إضافة ملفات PDF تعليمية (سحابياً)</h3>
-                    <label>اختر الفرع أو القسم الذي ترغب في رفع ملف الـ PDF داخله:</label>
+                    <label>اختر القسم الرئيسي الذي ترغب في رفع ملف الـ PDF داخله:</label>
                     <select id="pdf-target-branch-select"></select>
                     <input type="text" id="new-pdf-title" placeholder="عنوان ملف الـ PDF (مثال: ملخص الجبر الشامل)" style="margin-top:4px;">
-                    <label style="margin-top:6px; display:block; font-weight:700;">اختر ملف الـ PDF (يُفضل حجم مناسب):</label>
+                    <label style="margin-top:6px; display:block; font-weight:700;">اختر ملف الـ PDF:</label>
                     <input type="file" id="pdf-file-input" accept="application/pdf" style="background: var(--card-bg); padding: 4px;">
                     <button class="btn btn-success" onclick="uploadPdfToCloud()" style="width: 100%; margin-top: 10px;">رفع وحفظ ملف الـ PDF بالسحابة 💾</button>
                 </div>
@@ -521,7 +521,8 @@
                             { id: 'm_zubda_2', name: 'النموذج 2' }
                         ]
                     }
-                ] 
+                ],
+                pdfs: []
             },
             {
                 id: 'cat_tahsili',
@@ -534,7 +535,8 @@
                             { id: 'm_tahsili_1', name: 'نموذج الدوال' }
                         ]
                     }
-                ]
+                ],
+                pdfs: []
             }
         ];
 
@@ -644,7 +646,7 @@
             let adminArea = document.getElementById('admin-announcement-text');
             if(settings && settings.announcement) {
                 if(banner) {
-                    banner.innerHTML = `📢 <strong>إعلان هامة للمنصة:</strong> ${settings.announcement}`;
+                    banner.innerHTML = `📢 <strong>إعلان مهم للمنصة:</strong> ${settings.announcement}`;
                     banner.style.display = 'block';
                 }
                 if(adminArea && adminArea.value === '') {
@@ -762,10 +764,8 @@
                 });
             }
 
-            if(!cat.branches || cat.branches.length === 0) {
-                if(!cat.pdfs || cat.pdfs.length === 0) {
-                    html += `<p style="color:var(--text-muted);">لا توجد فروع أو ملفات مسجلة هنا بعد.</p>`;
-                }
+            if((!cat.branches || cat.branches.length === 0) && (!cat.pdfs || cat.pdfs.length === 0)) {
+                html += `<p style="color:var(--text-muted);">لا توجد فروع أو ملفات مسجلة هنا بعد.</p>`;
             }
 
             container.innerHTML = html;
