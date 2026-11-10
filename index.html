@@ -490,12 +490,14 @@
             </div>
         </div>
 
+        <!-- شاشة النتيجة مع زراير التبديل بين (جميع الأسئلة) و (الأخطاء فقط) -->
         <div id="results-screen" class="screen card-box">
-            <h2 style="color: var(--primary); margin-bottom: 10px;">🎉 نتيجة الاختبار والمراجعة</h2>
+            <h2 style="color: var(--primary); margin-bottom: 10px;">🎉 نتيجة الاختبار ومراجعة الإجابات</h2>
             <div id="results-score-badge" style="font-size: 1.8rem; font-weight: 900; color: var(--primary); margin-bottom: 20px; background: rgba(79, 70, 229, 0.08); padding: 15px; border-radius: 18px; border: 2px solid var(--primary);"></div>
             
+            <!-- أزرار الاختيار بين عرض الكل أو عرض الأخطاء فقط -->
             <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 25px; flex-wrap: wrap;">
-                <button class="btn" id="filter-all-btn" onclick="filterReviewQuestions('all')" style="background: var(--primary);">عرض جميع الأسئلة 📋</button>
+                <button class="btn" id="filter-all-btn" onclick="filterReviewQuestions('all')" style="background: var(--primary);">عرض جميع الأسئلة (صح وخطأ) 📋</button>
                 <button class="btn" id="filter-wrong-btn" onclick="filterReviewQuestions('wrong')" style="background: #64748b;">عرض الأخطاء فقط ❌</button>
             </div>
 
@@ -1529,6 +1531,7 @@
 
             let container = document.getElementById('review-questions-list');
             let html = '';
+            let filteredCount = 0;
 
             activeQuestions.forEach((q, idx) => {
                 let studentAns = userAnswers[idx];
@@ -1536,6 +1539,7 @@
 
                 if(filterType === 'wrong' && isCorrect) return;
 
+                filteredCount++;
                 let cardClass = isCorrect ? 'correct-card' : 'wrong-card';
                 let statusTag = isCorrect ? '<span style="color:var(--success); font-weight:800;">إجابة صحيحة ✅</span>' : '<span style="color:var(--danger); font-weight:800;">إجابة خاطئة ❌</span>';
 
@@ -1561,6 +1565,10 @@
                         optClass = 'user-wrong';
                         labelText = ' (إجابتك الخاطئة ✖)';
                     }
+                    if(studentAns === oIdx && isCorrect) {
+                        optClass = 'user-correct';
+                        labelText = ' (إجابتك الصحيحة ✔)';
+                    }
 
                     html += `<div class="review-opt ${optClass}">${opt} ${labelText}</div>`;
                 });
@@ -1568,7 +1576,7 @@
                 html += `</div>`;
             });
 
-            if(html === '' && filterType === 'wrong') {
+            if(filteredCount === 0 && filterType === 'wrong') {
                 html = `<div style="text-align:center; padding:20px; color:var(--success); font-weight:800; font-size:1.2rem;">🌟 أحسنت! لم تقم بأي أخطاء في هذا الاختبار.</div>`;
             }
 
